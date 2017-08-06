@@ -1,2 +1,7 @@
-hello.bin: hello.asm
-	nasm hello.asm -f bin -o hello.bin
+all:	find_the_byte.bin find_the_byte_BOOK_EXAMPLE.bin
+
+find_the_byte.bin: find_the_byte.asm
+	nasm find_the_byte.asm -f bin -o find_the_byte.bin
+
+find_the_byte_BOOK_EXAMPLE.bin:	find_the_byte_BOOK_EXAMPLE.asm
+	nasm find_the_byte_BOOK_EXAMPLE.asm -f bin -o find_the_byte_BOOK_EXAMPLE.bin
