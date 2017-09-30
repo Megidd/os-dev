@@ -7,19 +7,31 @@
      7 00000009 6A42                    push 'B'
      8 0000000B 6A43                    push 'C'
      9                                  
-    10 0000000D 5B                      pop bx
-    11 0000000E 88D8                    mov al,bl
-    12 00000010 CD10                    int 0x10
+    10                                  ;pop bx
+    11                                  ;mov al,bl
+    12                                  ;int 0x10
     13                                  
-    14 00000012 5B                      pop bx
-    15 00000013 88D8                    mov al,bl
-    16 00000015 CD10                    int 0x10
+    14                                  ;pop bx
+    15                                  ;mov al,bl
+    16                                  ;int 0x10
     17                                  
-    18 00000017 A0FE7F                  mov al,[0x8000-0x2]
-    19 0000001A CD10                    int 0x10
+    18                                  ;mov al,[0x8000-0x2]
+    19                                  ;int 0x10
     20                                  
-    21 0000001C EBFE                    jmp $
-    22                                  
-    23 0000001E 00<rept>                times 510-($-$$) db 0x00
-    24                                  
-    25 000001FE 55AA                    dw 0xaa55
+    21 0000000D B00A                    mov al,0x0a	;next line
+    22 0000000F CD10                    int 0x10
+    23                                  
+    24 00000011 A0FA7F                  mov al,[0x8000-0x06]
+    25 00000014 CD10                    int 0x10
+    26                                  
+    27 00000016 A0FC7F                  mov al,[0x8000-0x04]
+    28 00000019 CD10                    int 0x10
+    29                                  
+    30 0000001B A0FE7F                  mov al,[0x8000-0x02]
+    31 0000001E CD10                    int 0x10
+    32                                  
+    33 00000020 EBFE                    jmp $
+    34                                  
+    35 00000022 00<rept>                times 510-($-$$) db 0x00
+    36                                  
+    37 000001FE 55AA                    dw 0xaa55
