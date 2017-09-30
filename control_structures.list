@@ -1,0 +1,28 @@
+     1 00000000 BB1E00                  mov bx,30
+     2                                  
+     3 00000003 83FB04                  cmp	bx,4
+     4 00000006 7E07                    jle	less_equal_4
+     5                                  continue1:
+     6 00000008 83FB28                  	cmp bx,40
+     7 0000000B 7C06                    	jl	less_40
+     8 0000000D EB08                    	jmp	other
+     9                                  
+    10                                  less_equal_4:
+    11 0000000F B041                    	mov al,'A'
+    12 00000011 EBF5                    	jmp continue1
+    13                                  less_40:
+    14 00000013 B042                    	mov al,'B'
+    15 00000015 EB04                    	jmp end
+    16                                  other:
+    17 00000017 B043                    	mov al,'C'
+    18 00000019 EB00                    	jmp end
+    19                                  
+    20                                  end:
+    21 0000001B B40E                    	mov ah,0x0e
+    22 0000001D CD10                    	int 0x10
+    23                                  
+    24 0000001F EBFE                    	jmp $	;jump forever
+    25                                  
+    26 00000021 00<rept>                	times 510-($-$$) db 0x00	;padding
+    27                                  
+    28 000001FE 55AA                    	dw 0xaa55	;magic number for boot sector
