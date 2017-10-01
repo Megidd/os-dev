@@ -22,12 +22,18 @@
     22                              <1> 			;therefore 0x7c00 needs to be added to the data address
     23                              <1> 			;to get the correct absolute data address
     24                              <1> 	
-    25 0000002A 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
-    26 0000002C CD10                <1> 	int 0x10
-    27                              <1> 	
-    28 0000002E 61                  <1> 	popa	;pop all registers to be polite
-    29 0000002F C3                  <1> 	ret	;pop return address and jump to it
-    30                                  
-    31 00000030 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512-byte boot sector
-    32                                  
-    33 000001FE 55AA                    dw 0xaa55	;magic number
+    25                              <1> print_next_byte:
+    26 0000002A 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
+    27 0000002C 3C00                <1> 	cmp al,0x00
+    28 0000002E 7405                <1> 	je null_terminated
+    29 00000030 CD10                <1> 	int 0x10
+    30 00000032 43                  <1> 	inc bx
+    31 00000033 EBF5                <1> 	jmp print_next_byte
+    32                              <1> 	
+    33                              <1> null_terminated:
+    34 00000035 61                  <1> 	popa	;pop all registers to be polite
+    35 00000036 C3                  <1> 	ret	;pop return address and jump to it
+    36                                  
+    37 00000037 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512-byte boot sector
+    38                                  
+    39 000001FE 55AA                    dw 0xaa55	;magic number
