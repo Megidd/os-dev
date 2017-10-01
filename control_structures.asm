@@ -2,14 +2,13 @@ mov bx,30
 
 cmp	bx,4
 jle	less_equal_4
-continue1:
-	cmp bx,40
-	jl	less_40
-	jmp	other
+cmp 	bx,40
+jl	less_40
+jmp	other
 
 less_equal_4:
 	mov al,'A'
-	jmp continue1
+	jmp end
 less_40:
 	mov al,'B'
 	jmp end
