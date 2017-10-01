@@ -16,5 +16,7 @@ print_next_byte:
 	jmp print_next_byte
 	
 null_terminated:
+	mov al,0x0a	;new line character
+	int 0x10	;print a new line
 	popa	;pop all registers to be polite
 	ret	;pop return address and jump to it

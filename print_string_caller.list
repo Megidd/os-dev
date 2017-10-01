@@ -31,9 +31,11 @@
     31 00000033 EBF5                <1> 	jmp print_next_byte
     32                              <1> 	
     33                              <1> null_terminated:
-    34 00000035 61                  <1> 	popa	;pop all registers to be polite
-    35 00000036 C3                  <1> 	ret	;pop return address and jump to it
-    36                                  
-    37 00000037 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512-byte boot sector
+    34 00000035 B00A                <1> 	mov al,0x0a	;new line character
+    35 00000037 CD10                <1> 	int 0x10	;print a new line
+    36 00000039 61                  <1> 	popa	;pop all registers to be polite
+    37 0000003A C3                  <1> 	ret	;pop return address and jump to it
     38                                  
-    39 000001FE 55AA                    dw 0xaa55	;magic number
+    39 0000003B 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512-byte boot sector
+    40                                  
+    41 000001FE 55AA                    dw 0xaa55	;magic number
