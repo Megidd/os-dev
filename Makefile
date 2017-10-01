@@ -1,7 +1,12 @@
-all:	print_string_caller.bin
+all:	print_hex.bin
 
-print_string_caller.bin:	print_string_caller.asm		print_string_callee.asm
-	nasm print_string_caller.asm -f bin -o print_string_caller.bin -l print_string_caller.list
+print_hex.bin:	print_hex.asm	print_string_callee.asm
+	nasm print_hex.asm -f bin -o print_hex.bin -l print_hex.list
+
+#all:	print_string_caller.bin
+
+#print_string_caller.bin:	print_string_caller.asm		print_string_callee.asm
+#	nasm print_string_caller.asm -f bin -o print_string_caller.bin -l print_string_caller.list
 
 #all:	control_structures.bin
 
