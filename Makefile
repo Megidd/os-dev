@@ -1,7 +1,12 @@
-all:	control_structures.bin
+all:	print_string_caller.bin
 
-control_structures.bin:		control_structures.asm
-	nasm control_structures.asm -f bin -o control_structures.bin -l control_structures.list
+print_string_caller.bin:	print_string_caller.asm		print_string_callee.asm
+	nasm print_string_caller.asm -f bin -o print_string_caller.bin -l print_string_caller.list
+
+#all:	control_structures.bin
+
+#control_structures.bin:		control_structures.asm
+#	nasm control_structures.asm -f bin -o control_structures.bin -l control_structures.list
 
 #all:	push_and_pop.bin
 
