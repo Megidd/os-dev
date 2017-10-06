@@ -1,7 +1,7 @@
-all:	print_hex.bin
+all:	print_hex_caller.bin
 
-print_hex.bin:	print_hex.asm	print_string_callee.asm
-	nasm print_hex.asm -f bin -o print_hex.bin -l print_hex.list
+print_hex_caller.bin:	print_hex_caller.asm	print_string_callee.asm		assign_hex_digit.asm
+	nasm print_hex_caller.asm -f bin -o print_hex_caller.bin -l print_hex_caller.list
 
 #all:	print_string_caller.bin
 
