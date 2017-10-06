@@ -1,7 +1,12 @@
-all:	print_hex_caller.bin
+all:	seg_offset.bin
 
-print_hex_caller.bin:	print_hex_caller.asm	print_string_callee.asm		assign_hex_digit.asm
-	nasm print_hex_caller.asm -f bin -o print_hex_caller.bin -l print_hex_caller.list
+seg_offset.bin:		seg_offset.asm
+	nasm seg_offset.asm -f bin -o seg_offset.bin -l seg_offset.list
+
+#all:	print_hex_caller.bin
+
+#print_hex_caller.bin:	print_hex_caller.asm	print_string_callee.asm		assign_hex_digit.asm
+#	nasm print_hex_caller.asm -f bin -o print_hex_caller.bin -l print_hex_caller.list
 
 #all:	print_string_caller.bin
 
