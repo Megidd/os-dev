@@ -5,6 +5,10 @@ int 0x10		;Does this print an X?
 			;No
 
 mov bx, 0x07c0	;Can NOT set ds directly
+		;Note  that  limitations  of  the  CPU’s  circuitry
+		;(at  least  in  16-bit  real  mode)
+		;reveal themselves here, 
+		;when seemingly correct instructions like "mov ds, 0x1234" are not actually possible
 mov ds, bx
 mov al,[the_secret]
 int 0x10		;Does this print an X?

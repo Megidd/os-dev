@@ -5,28 +5,32 @@
      5                                  			;No
      6                                  
      7 00000007 BBC007                  mov bx, 0x07c0	;Can NOT set ds directly
-     8 0000000A 8EDB                    mov ds, bx
-     9 0000000C A0[2400]                mov al,[the_secret]
-    10 0000000F CD10                    int 0x10		;Does this print an X?
-    11                                  			;Yes
-    12                                  
-    13 00000011 26A0[2400]              mov al,[es:the_secret]		;Tell the CPU to use the es (not ds) segment
-    14 00000015 CD10                    int 0x10		;Does this print an X?
-    15                                  			;No
+     8                                  		;Note  that  limitations  of  the  CPU’s  circuitry
+     9                                  		;(at  least  in  16-bit  real  mode)
+    10                                  		;reveal themselves here, 
+    11                                  		;when seemingly correct instructions like "mov ds, 0x1234" are not actually possible
+    12 0000000A 8EDB                    mov ds, bx
+    13 0000000C A0[2400]                mov al,[the_secret]
+    14 0000000F CD10                    int 0x10		;Does this print an X?
+    15                                  			;Yes
     16                                  
-    17 00000017 BBC007                  mov bx, 0x07c0
-    18 0000001A 8EC3                    mov es, bx
-    19 0000001C 26A0[2400]              mov al,[es:the_secret]		;Tell the CPU to use the es (not ds) segment
-    20 00000020 CD10                    int 0x10		;Does this print an X?
-    21                                  			;Yes
-    22                                  
-    23 00000022 EBFE                    jmp $
-    24                                  
-    25                                  the_secret:
-    26 00000024 58                      	db 'X'
-    27                                  
-    28 00000025 00<rept>                times 510-($-$$) db 0x00
-    29                                  
-    30                                  ;dw 0xaa55
-    31 000001FE 55                      db 0x55		;Test signature
-    32 000001FF AA                      db 0xaa		;It behaves the same as "dw 0xaa55"
+    17 00000011 26A0[2400]              mov al,[es:the_secret]		;Tell the CPU to use the es (not ds) segment
+    18 00000015 CD10                    int 0x10		;Does this print an X?
+    19                                  			;No
+    20                                  
+    21 00000017 BBC007                  mov bx, 0x07c0
+    22 0000001A 8EC3                    mov es, bx
+    23 0000001C 26A0[2400]              mov al,[es:the_secret]		;Tell the CPU to use the es (not ds) segment
+    24 00000020 CD10                    int 0x10		;Does this print an X?
+    25                                  			;Yes
+    26                                  
+    27 00000022 EBFE                    jmp $
+    28                                  
+    29                                  the_secret:
+    30 00000024 58                      	db 'X'
+    31                                  
+    32 00000025 00<rept>                times 510-($-$$) db 0x00
+    33                                  
+    34                                  ;dw 0xaa55
+    35 000001FE 55                      db 0x55		;Test signature
+    36 000001FF AA                      db 0xaa		;It behaves the same as "dw 0xaa55"
