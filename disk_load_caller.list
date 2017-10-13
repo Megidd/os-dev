@@ -1,206 +1,239 @@
-     1 00000000 BB[2C01]                mov bx, MSG
-     2 00000003 E80E01                  call print_string
-     3 00000006 BAFE1F                  mov dx, 0x1ffe			;dx stores print_hex input
-     4 00000009 E80800                  call print_hex			;print_hex modifies HEX_OUT content according to dx
-     5 0000000C BB[0D01]                mov bx,HEX_OUT
-     6 0000000F E80201                  call print_string
-     7                                  
-     8 00000012 EBFE                    jmp $
-     9                                  
-    10                                  %include "print_hex_callee.asm"
+     1 00000000 BB[6001]                mov bx, MSG			;bx stores print_string input
+     2 00000003 E84201                  call print_string
+     3                                  
+     4 00000006 E82600                  call disk_load
+     5 00000009 720C                    jc disk_error
+     6                                  
+     7 0000000B BAFE1F                  mov dx, 0x1ffe			;dx stores print_hex input
+     8 0000000E E83700                  call print_hex			;print_hex modifies HEX_OUT content according to dx
+     9 00000011 BB[4101]                mov bx,HEX_OUT
+    10 00000014 E83101                  call print_string
+    11                                  
+    12                                  disk_error:
+    13 00000017 BB[1F00]                 mov bx, DISK_ERROR_MSG
+    14 0000001A E82B01                   call print_string
+    15                                  
+    16 0000001D EBFE                    jmp $
+    17                                  
+    18                                  DISK_ERROR_MSG:
+    19 0000001F 4469736B2072656164-      db 'Disk read error',0x00
+    19 00000028 206572726F7200     
+    20                                  
+    21                                  %include "disk_load_callee.asm"
+     1                              <1> disk_load:
+     2 0000002F 60                  <1>  pusha
+     3                              <1> 
+     4 00000030 B402                <1>  mov ah, 0x02		;BIOS read sector function
+     5 00000032 B200                <1>  mov dl, 0x00		;first floppy drive
+     6 00000034 B503                <1>  mov ch, 0x03		;select cylinder 3
+     7 00000036 B601                <1>  mov dh, 0x01		;Select the track on 2nd side of floppy
+     8                              <1> 			; disk , since this count has a base of 0
+     9 00000038 B104                <1>  mov cl, 0x04		;Select  the 4th  sector  on the  track  - not
+    10                              <1> 			; the 5th , since  this  has a base of 1.
+    11 0000003A B005                <1>  mov al, 0x05
+    12 0000003C BB00A0              <1>  mov bx, 0xa000
+    13 0000003F 8EC3                <1>  mov es,bx
+    14 00000041 BB3412              <1>  mov bx,0x1234
+    15                              <1> 
+    16 00000044 CD13                <1>  int 0x13
+    17                              <1> 
+    18 00000046 61                  <1>  popa
+    19 00000047 C3                  <1>  ret
+    22                                  
+    23                                  %include "print_hex_callee.asm"
      1                              <1> print_hex:
-     2 00000014 60                  <1> 	pusha
+     2 00000048 60                  <1> 	pusha
      3                              <1> 
      4                              <1> 	; 5th digit
-     5 00000015 88D1                <1> 	mov cl,dl	;The least significant byte
-     6 00000017 80E10F              <1> 	and cl,0x0f	;cl contains only a half-byte
-     7 0000001A B505                <1> 	mov ch,0x05	;ch contains location of half-byte at HEX_OUT
-     8 0000001C E82C00              <1> 	call assign_hex_digit	;cl and ch are parameters to assign_hex_digit
+     5 00000049 88D1                <1> 	mov cl,dl	;The least significant byte
+     6 0000004B 80E10F              <1> 	and cl,0x0f	;cl contains only a half-byte
+     7 0000004E B505                <1> 	mov ch,0x05	;ch contains location of half-byte at HEX_OUT
+     8 00000050 E82C00              <1> 	call assign_hex_digit	;cl and ch are parameters to assign_hex_digit
      9                              <1> 
     10                              <1> 	; 4th digit
-    11 0000001F 88D1                <1> 	mov cl,dl
-    12 00000021 80E1F0              <1> 	and cl,0xf0
-    13 00000024 C0E904              <1> 	shr cl,0x04	;shift cl to right, 4 times
-    14 00000027 80E10F              <1> 	and cl,0x0f
-    15 0000002A B504                <1> 	mov ch,0x04
-    16 0000002C E81C00              <1> 	call assign_hex_digit
+    11 00000053 88D1                <1> 	mov cl,dl
+    12 00000055 80E1F0              <1> 	and cl,0xf0
+    13 00000058 C0E904              <1> 	shr cl,0x04	;shift cl to right, 4 times
+    14 0000005B 80E10F              <1> 	and cl,0x0f
+    15 0000005E B504                <1> 	mov ch,0x04
+    16 00000060 E81C00              <1> 	call assign_hex_digit
     17                              <1> 
     18                              <1> 	; 3rd digit
-    19 0000002F 88F1                <1> 	mov cl,dh
-    20 00000031 80E10F              <1> 	and cl,0x0f
-    21 00000034 B503                <1> 	mov ch,0x03
-    22 00000036 E81200              <1> 	call assign_hex_digit
+    19 00000063 88F1                <1> 	mov cl,dh
+    20 00000065 80E10F              <1> 	and cl,0x0f
+    21 00000068 B503                <1> 	mov ch,0x03
+    22 0000006A E81200              <1> 	call assign_hex_digit
     23                              <1> 
     24                              <1> 	; 2nd digit
-    25 00000039 88F1                <1> 	mov cl,dh
-    26 0000003B 80E1F0              <1> 	and cl,0xf0
-    27 0000003E C0E904              <1> 	shr cl,0x04	;shitf cl to right, 4 times
-    28 00000041 80E10F              <1> 	and cl,0x0f
-    29 00000044 B502                <1> 	mov ch,0x02
-    30 00000046 E80200              <1> 	call assign_hex_digit
+    25 0000006D 88F1                <1> 	mov cl,dh
+    26 0000006F 80E1F0              <1> 	and cl,0xf0
+    27 00000072 C0E904              <1> 	shr cl,0x04	;shitf cl to right, 4 times
+    28 00000075 80E10F              <1> 	and cl,0x0f
+    29 00000078 B502                <1> 	mov ch,0x02
+    30 0000007A E80200              <1> 	call assign_hex_digit
     31                              <1> 
     32                              <1> 	; 1st digit is already correct: 'x'
     33                              <1> 	; zero digit is already correct: '0'
     34                              <1> 
-    35 00000049 61                  <1> 	popa
-    36 0000004A C3                  <1> 	ret
-    11                                  %include "assign_hex_digit.asm"
+    35 0000007D 61                  <1> 	popa
+    36 0000007E C3                  <1> 	ret
+    24                                  %include "assign_hex_digit.asm"
      1                              <1> assign_hex_digit:
-     2 0000004B 60                  <1> 	pusha	;push all registers to be polite
+     2 0000007F 60                  <1> 	pusha	;push all registers to be polite
      3                              <1> 	
      4                              <1> 	;cl is a parameter to print_hex_digit
      5                              <1> 	;ch is a parameter to print_hex_digit
      6                              <1> 	
-     7 0000004C 80E10F              <1> 	and cl,0x0f	;cl contains the hex digit (half-byte) to be printed
+     7 00000080 80E10F              <1> 	and cl,0x0f	;cl contains the hex digit (half-byte) to be printed
      8                              <1> 			;bit-wise and operation, note that 0x0f is 0b0000_1111
      9                              <1> 			;to make sure cl contains only a half-byte
     10                              <1> 
-    11 0000004F C706[BB00]0000      <1> 	mov [LOCATION], word 0x0000
-    12 00000055 8106[BB00]007C      <1> 	add [LOCATION], word 0x7c00	;address at which boot sector is loaded
-    13 0000005B 8106[BB00][0D01]    <1> 	add [LOCATION], word HEX_OUT
-    14 00000061 002E[BB00]          <1> 	add [LOCATION], ch		;ch contains the hex digit location at HEX_OUT
-    15 00000065 8B3E[BB00]          <1> 	mov di,[LOCATION]
+    11 00000083 C706[EF00]0000      <1> 	mov [LOCATION], word 0x0000
+    12 00000089 8106[EF00]007C      <1> 	add [LOCATION], word 0x7c00	;address at which boot sector is loaded
+    13 0000008F 8106[EF00][4101]    <1> 	add [LOCATION], word HEX_OUT
+    14 00000095 002E[EF00]          <1> 	add [LOCATION], ch		;ch contains the hex digit location at HEX_OUT
+    15 00000099 8B3E[EF00]          <1> 	mov di,[LOCATION]
     16                              <1> 
     17                              <1> cont_0:
-    18 00000069 80F900              <1> 	cmp cl,0x00
-    19 0000006C 744F                <1> 	je byte_0
+    18 0000009D 80F900              <1> 	cmp cl,0x00
+    19 000000A0 744F                <1> 	je byte_0
     20                              <1> cont_1:
-    21 0000006E 80F901              <1> 	cmp cl,0x01
-    22 00000071 744F                <1> 	je byte_1
+    21 000000A2 80F901              <1> 	cmp cl,0x01
+    22 000000A5 744F                <1> 	je byte_1
     23                              <1> cont_2:
-    24 00000073 80F902              <1> 	cmp cl,0x02
-    25 00000076 744F                <1> 	je byte_2
+    24 000000A7 80F902              <1> 	cmp cl,0x02
+    25 000000AA 744F                <1> 	je byte_2
     26                              <1> cont_3:
-    27 00000078 80F903              <1> 	cmp cl,0x03
-    28 0000007B 744F                <1> 	je byte_3
+    27 000000AC 80F903              <1> 	cmp cl,0x03
+    28 000000AF 744F                <1> 	je byte_3
     29                              <1> cont_4:
-    30 0000007D 80F904              <1> 	cmp cl,0x04
-    31 00000080 744F                <1> 	je byte_4
+    30 000000B1 80F904              <1> 	cmp cl,0x04
+    31 000000B4 744F                <1> 	je byte_4
     32                              <1> cont_5:
-    33 00000082 80F905              <1> 	cmp cl,0x05
-    34 00000085 744F                <1> 	je byte_5
+    33 000000B6 80F905              <1> 	cmp cl,0x05
+    34 000000B9 744F                <1> 	je byte_5
     35                              <1> cont_6:
-    36 00000087 80F906              <1> 	cmp cl,0x06
-    37 0000008A 744F                <1> 	je byte_6
+    36 000000BB 80F906              <1> 	cmp cl,0x06
+    37 000000BE 744F                <1> 	je byte_6
     38                              <1> cont_7:
-    39 0000008C 80F907              <1> 	cmp cl,0x07
-    40 0000008F 744F                <1> 	je byte_7
+    39 000000C0 80F907              <1> 	cmp cl,0x07
+    40 000000C3 744F                <1> 	je byte_7
     41                              <1> cont_8:
-    42 00000091 80F908              <1> 	cmp cl,0x08
-    43 00000094 744F                <1> 	je byte_8
+    42 000000C5 80F908              <1> 	cmp cl,0x08
+    43 000000C8 744F                <1> 	je byte_8
     44                              <1> cont_9:
-    45 00000096 80F909              <1> 	cmp cl,0x09
-    46 00000099 744F                <1> 	je byte_9
+    45 000000CA 80F909              <1> 	cmp cl,0x09
+    46 000000CD 744F                <1> 	je byte_9
     47                              <1> cont_a:
-    48 0000009B 80F90A              <1> 	cmp cl,0x0a
-    49 0000009E 744F                <1> 	je byte_a
+    48 000000CF 80F90A              <1> 	cmp cl,0x0a
+    49 000000D2 744F                <1> 	je byte_a
     50                              <1> cont_b:
-    51 000000A0 80F90B              <1> 	cmp cl,0x0b
-    52 000000A3 744F                <1> 	je byte_b
+    51 000000D4 80F90B              <1> 	cmp cl,0x0b
+    52 000000D7 744F                <1> 	je byte_b
     53                              <1> cont_c:
-    54 000000A5 80F90C              <1> 	cmp cl,0x0c
-    55 000000A8 744F                <1> 	je byte_c
+    54 000000D9 80F90C              <1> 	cmp cl,0x0c
+    55 000000DC 744F                <1> 	je byte_c
     56                              <1> cont_d:
-    57 000000AA 80F90D              <1> 	cmp cl,0x0d
-    58 000000AD 744F                <1> 	je byte_d
+    57 000000DE 80F90D              <1> 	cmp cl,0x0d
+    58 000000E1 744F                <1> 	je byte_d
     59                              <1> cont_e:
-    60 000000AF 80F90E              <1> 	cmp cl,0x0e
-    61 000000B2 744F                <1> 	je byte_e
+    60 000000E3 80F90E              <1> 	cmp cl,0x0e
+    61 000000E6 744F                <1> 	je byte_e
     62                              <1> cont_f:
-    63 000000B4 80F90F              <1> 	cmp cl,0x0f
-    64 000000B7 744F                <1> 	je byte_f
+    63 000000E8 80F90F              <1> 	cmp cl,0x0f
+    64 000000EB 744F                <1> 	je byte_f
     65                              <1> cont_end:
-    66 000000B9 61                  <1> 	popa	;pop all registers to be polite
-    67 000000BA C3                  <1> 	ret
+    66 000000ED 61                  <1> 	popa	;pop all registers to be polite
+    67 000000EE C3                  <1> 	ret
     68                              <1> 
     69                              <1> LOCATION:
-    70 000000BB 0000                <1> 	dw 0x0000
+    70 000000EF 0000                <1> 	dw 0x0000
     71                              <1> 
     72                              <1> byte_0:
-    73 000000BD C60530              <1> 	mov [di], byte '0'
-    74 000000C0 EBAC                <1> 	jmp cont_1
+    73 000000F1 C60530              <1> 	mov [di], byte '0'
+    74 000000F4 EBAC                <1> 	jmp cont_1
     75                              <1> byte_1:
-    76 000000C2 C60531              <1> 	mov [di], byte '1'
-    77 000000C5 EBAC                <1> 	jmp cont_2
+    76 000000F6 C60531              <1> 	mov [di], byte '1'
+    77 000000F9 EBAC                <1> 	jmp cont_2
     78                              <1> byte_2:
-    79 000000C7 C60532              <1> 	mov [di], byte '2'
-    80 000000CA EBAC                <1> 	jmp cont_3
+    79 000000FB C60532              <1> 	mov [di], byte '2'
+    80 000000FE EBAC                <1> 	jmp cont_3
     81                              <1> byte_3:
-    82 000000CC C60533              <1> 	mov [di], byte '3'
-    83 000000CF EBAC                <1> 	jmp cont_4
+    82 00000100 C60533              <1> 	mov [di], byte '3'
+    83 00000103 EBAC                <1> 	jmp cont_4
     84                              <1> byte_4:
-    85 000000D1 C60534              <1> 	mov [di], byte '4'
-    86 000000D4 EBAC                <1> 	jmp cont_5
+    85 00000105 C60534              <1> 	mov [di], byte '4'
+    86 00000108 EBAC                <1> 	jmp cont_5
     87                              <1> byte_5:
-    88 000000D6 C60535              <1> 	mov [di], byte '5'
-    89 000000D9 EBAC                <1> 	jmp cont_6
+    88 0000010A C60535              <1> 	mov [di], byte '5'
+    89 0000010D EBAC                <1> 	jmp cont_6
     90                              <1> byte_6:
-    91 000000DB C60536              <1> 	mov [di], byte '6'
-    92 000000DE EBAC                <1> 	jmp cont_7
+    91 0000010F C60536              <1> 	mov [di], byte '6'
+    92 00000112 EBAC                <1> 	jmp cont_7
     93                              <1> byte_7:
-    94 000000E0 C60537              <1> 	mov [di], byte '7'
-    95 000000E3 EBAC                <1> 	jmp cont_8
+    94 00000114 C60537              <1> 	mov [di], byte '7'
+    95 00000117 EBAC                <1> 	jmp cont_8
     96                              <1> byte_8:
-    97 000000E5 C60538              <1> 	mov [di], byte '8'
-    98 000000E8 EBAC                <1> 	jmp cont_9
+    97 00000119 C60538              <1> 	mov [di], byte '8'
+    98 0000011C EBAC                <1> 	jmp cont_9
     99                              <1> byte_9:
-   100 000000EA C60539              <1> 	mov [di], byte '9'
-   101 000000ED EBAC                <1> 	jmp cont_a
+   100 0000011E C60539              <1> 	mov [di], byte '9'
+   101 00000121 EBAC                <1> 	jmp cont_a
    102                              <1> byte_a:
-   103 000000EF C60561              <1> 	mov [di], byte 'a'
-   104 000000F2 EBAC                <1> 	jmp cont_b
+   103 00000123 C60561              <1> 	mov [di], byte 'a'
+   104 00000126 EBAC                <1> 	jmp cont_b
    105                              <1> byte_b:
-   106 000000F4 C60562              <1> 	mov [di], byte 'b'
-   107 000000F7 EBAC                <1> 	jmp cont_c
+   106 00000128 C60562              <1> 	mov [di], byte 'b'
+   107 0000012B EBAC                <1> 	jmp cont_c
    108                              <1> byte_c:
-   109 000000F9 C60563              <1> 	mov [di], byte 'c'
-   110 000000FC EBAC                <1> 	jmp cont_d
+   109 0000012D C60563              <1> 	mov [di], byte 'c'
+   110 00000130 EBAC                <1> 	jmp cont_d
    111                              <1> byte_d:
-   112 000000FE C60564              <1> 	mov [di], byte 'd'
-   113 00000101 EBAC                <1> 	jmp cont_e
+   112 00000132 C60564              <1> 	mov [di], byte 'd'
+   113 00000135 EBAC                <1> 	jmp cont_e
    114                              <1> byte_e:
-   115 00000103 C60565              <1> 	mov [di], byte 'e'
-   116 00000106 EBAC                <1> 	jmp cont_f
+   115 00000137 C60565              <1> 	mov [di], byte 'e'
+   116 0000013A EBAC                <1> 	jmp cont_f
    117                              <1> byte_f:
-   118 00000108 C60566              <1> 	mov [di], byte 'f'
-   119 0000010B EBAC                <1> 	jmp cont_end
-    12                                  
-    13                                  HEX_OUT:			;HEX_OUT stores print_hex output
-    14 0000010D 30783030303000           db '0x0000',0x00
-    15                                  
-    16                                  %include "print_string_callee.asm"
+   118 0000013C C60566              <1> 	mov [di], byte 'f'
+   119 0000013F EBAC                <1> 	jmp cont_end
+    25                                  
+    26                                  HEX_OUT:			;HEX_OUT stores print_hex output
+    27 00000141 30783030303000           db '0x0000',0x00
+    28                                  
+    29                                  %include "print_string_callee.asm"
      1                              <1> print_string:
-     2 00000114 60                  <1> 	pusha	;push all registers to be polite
+     2 00000148 60                  <1> 	pusha	;push all registers to be polite
      3                              <1> 	
-     4 00000115 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
+     4 00000149 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
      5                              <1> 
-     6 00000117 81C3007C            <1> 	add bx,0x7c00	;boot sector is loaded at 0x7c00 address
+     6 0000014B 81C3007C            <1> 	add bx,0x7c00	;boot sector is loaded at 0x7c00 address
      7                              <1> 			;therefore 0x7c00 needs to be added to the data address
      8                              <1> 			;to get the correct absolute data address
      9                              <1> 	
     10                              <1> print_next_byte:
-    11 0000011B 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
-    12 0000011D 3C00                <1> 	cmp al,0x00
-    13 0000011F 7405                <1> 	je null_terminated
-    14 00000121 CD10                <1> 	int 0x10
-    15 00000123 43                  <1> 	inc bx
-    16 00000124 EBF5                <1> 	jmp print_next_byte
+    11 0000014F 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
+    12 00000151 3C00                <1> 	cmp al,0x00
+    13 00000153 7405                <1> 	je null_terminated
+    14 00000155 CD10                <1> 	int 0x10
+    15 00000157 43                  <1> 	inc bx
+    16 00000158 EBF5                <1> 	jmp print_next_byte
     17                              <1> 	
     18                              <1> null_terminated:
-    19 00000126 B00A                <1> 	mov al,0x0a	;new line character
-    20 00000128 CD10                <1> 	int 0x10	;print a new line
-    21 0000012A 61                  <1> 	popa	;pop all registers to be polite
-    22 0000012B C3                  <1> 	ret	;pop return address and jump to it
-    17                                  
-    18                                  MSG:
-    19 0000012C 52656164696E672074-      db 'Reading the first n sectors following the boot sector ...',0x00
-    19 00000135 686520666972737420-
-    19 0000013E 6E20736563746F7273-
-    19 00000147 20666F6C6C6F77696E-
-    19 00000150 672074686520626F6F-
-    19 00000159 7420736563746F7220-
-    19 00000162 2E2E2E00           
-    20                                  
-    21 00000166 00<rept>                times 510-($-$$) db 0x00	;padding
-    22                                  
-    23 000001FE 55AA                    dw 0xaa55			;Boot sector signature
+    19 0000015A B00A                <1> 	mov al,0x0a	;new line character
+    20 0000015C CD10                <1> 	int 0x10	;print a new line
+    21 0000015E 61                  <1> 	popa	;pop all registers to be polite
+    22 0000015F C3                  <1> 	ret	;pop return address and jump to it
+    30                                  
+    31                                  MSG:
+    32 00000160 52656164696E672074-      db 'Reading the first n sectors following the boot sector ...',0x00
+    32 00000169 686520666972737420-
+    32 00000172 6E20736563746F7273-
+    32 0000017B 20666F6C6C6F77696E-
+    32 00000184 672074686520626F6F-
+    32 0000018D 7420736563746F7220-
+    32 00000196 2E2E2E00           
+    33                                  
+    34 0000019A 00<rept>                times 510-($-$$) db 0x00	;padding
+    35                                  
+    36 000001FE 55AA                    dw 0xaa55			;Boot sector signature
