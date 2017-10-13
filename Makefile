@@ -1,7 +1,12 @@
-all:	seg_offset.bin
+all:	disk_load_caller.bin
 
-seg_offset.bin:		seg_offset.asm
-	nasm seg_offset.asm -f bin -o seg_offset.bin -l seg_offset.list
+disk_load_caller.bin:		disk_load_caller.asm	disk_load_callee.asm
+	nasm disk_load_caller.asm -f bin -o disk_load_caller.bin -l disk_load_caller.list
+
+#all:	seg_offset.bin
+
+#seg_offset.bin:		seg_offset.asm
+#	nasm seg_offset.asm -f bin -o seg_offset.bin -l seg_offset.list
 
 #all:	print_hex_caller.bin
 

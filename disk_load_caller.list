@@ -1,0 +1,41 @@
+     1 00000000 BB[2000]                mov bx, MSG
+     2 00000003 E80200                  call print_string
+     3                                  
+     4 00000006 EBFE                    jmp $
+     5                                  
+     6                                  %include "print_string_callee.asm"
+     1                              <1> print_string:
+     2 00000008 60                  <1> 	pusha	;push all registers to be polite
+     3                              <1> 	
+     4 00000009 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
+     5                              <1> 
+     6 0000000B 81C3007C            <1> 	add bx,0x7c00	;boot sector is loaded at 0x7c00 address
+     7                              <1> 			;therefore 0x7c00 needs to be added to the data address
+     8                              <1> 			;to get the correct absolute data address
+     9                              <1> 	
+    10                              <1> print_next_byte:
+    11 0000000F 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
+    12 00000011 3C00                <1> 	cmp al,0x00
+    13 00000013 7405                <1> 	je null_terminated
+    14 00000015 CD10                <1> 	int 0x10
+    15 00000017 43                  <1> 	inc bx
+    16 00000018 EBF5                <1> 	jmp print_next_byte
+    17                              <1> 	
+    18                              <1> null_terminated:
+    19 0000001A B00A                <1> 	mov al,0x0a	;new line character
+    20 0000001C CD10                <1> 	int 0x10	;print a new line
+    21 0000001E 61                  <1> 	popa	;pop all registers to be polite
+    22 0000001F C3                  <1> 	ret	;pop return address and jump to it
+     7                                  
+     8                                  MSG:
+     9 00000020 52656164696E672074-      db 'Reading the first n sectors following the boot sector ...',0x00
+     9 00000029 686520666972737420-
+     9 00000032 6E20736563746F7273-
+     9 0000003B 20666F6C6C6F77696E-
+     9 00000044 672074686520626F6F-
+     9 0000004D 7420736563746F7220-
+     9 00000056 2E2E2E00           
+    10                                  
+    11 0000005A 00<rept>                times 510-($-$$) db 0x00	;padding
+    12                                  
+    13 000001FE 55AA                    dw 0xaa55			;Boot sector signature
