@@ -34,7 +34,6 @@ BOOT_DRIVE:
 %include "disk_load_callee.asm"
 
 %include "print_hex_callee.asm"
-%include "assign_hex_digit.asm"
 
 HEX_OUT:			;HEX_OUT stores print_hex output
  db '0x0000',0x00

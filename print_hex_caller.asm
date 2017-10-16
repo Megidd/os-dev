@@ -11,7 +11,6 @@ HEX_OUT:
 	;   012345  6	-> location of bytes at HEX_OUT
 
 %include 'print_hex_callee.asm'
-%include 'assign_hex_digit.asm'
 %include 'print_string_callee.asm'
 
 times 510-($-$$) db 0x00	;padding to fill the rest of 512-byte boot sector

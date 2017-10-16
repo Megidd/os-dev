@@ -1,6 +1,6 @@
 all:	disk_load_caller.bin
 
-disk_load_caller.bin:		disk_load_caller.asm	disk_load_callee.asm
+disk_load_caller.bin:		disk_load_caller.asm	disk_load_callee.asm print_hex_callee.asm
 	nasm disk_load_caller.asm -f bin -o disk_load_caller.bin -l disk_load_caller.list
 
 #all:	seg_offset.bin
@@ -10,7 +10,7 @@ disk_load_caller.bin:		disk_load_caller.asm	disk_load_callee.asm
 
 #all:	print_hex_caller.bin
 
-#print_hex_caller.bin:	print_hex_caller.asm	print_string_callee.asm		assign_hex_digit.asm
+#print_hex_caller.bin:	print_hex_caller.asm	print_string_callee.asm	print_hex_callee.asm
 #	nasm print_hex_caller.asm -f bin -o print_hex_caller.bin -l print_hex_caller.list
 
 #all:	print_string_caller.bin
