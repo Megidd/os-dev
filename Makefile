@@ -1,7 +1,12 @@
-all:	disk_load_caller.bin
+all:	search_string_on_memory.bin
 
-disk_load_caller.bin:		disk_load_caller.asm	disk_load_callee.asm print_hex_callee.asm
-	nasm disk_load_caller.asm -f bin -o disk_load_caller.bin -l disk_load_caller.list
+search_string_on_memory.bin:	search_string_on_memory.asm	print_hex_callee.asm	print_string_callee.asm
+	nasm search_string_on_memory.asm -f bin -o search_string_on_memory.bin -l search_string_on_memory.list
+
+#all:	disk_load_caller.bin
+
+#disk_load_caller.bin:		disk_load_caller.asm	disk_load_callee.asm print_hex_callee.asm
+#	nasm disk_load_caller.asm -f bin -o disk_load_caller.bin -l disk_load_caller.list
 
 #all:	seg_offset.bin
 
