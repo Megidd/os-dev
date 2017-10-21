@@ -42,30 +42,33 @@
     42 00000054 8CC1                      mov cx, es			;increment ES indirectly => processor limitation at 16-bit real mode
     43 00000056 41                        inc cx
     44 00000057 8EC1                      mov es, cx
-    45 00000059 81F9C107                  cmp cx, 0x07c1
-    46 0000005D 7405                      je end_search_string
-    47 0000005F 83F9FF                    cmp cx, 0xffff
-    48 00000062 75A7                      jne next_seg_reg
-    49                                  
-    50                                  end_search_string:
-    51 00000064 EBFE                     jmp $
+    45 00000059 81F9C107                  cmp cx, 0x07c1		;Stop the loop at segment 0x07c1, i.e. the segment after our boot sector code 
+    46                                  				;(our boot sector code is loaded at memory segment 0x07c0), 
+    47                                  				;to check if the string at our boot sector code is found or not
+    48                                  				;
+    49 0000005D 7405                      je end_search_string
+    50 0000005F 83F9FF                    cmp cx, 0xffff
+    51 00000062 75A7                      jne next_seg_reg
     52                                  
-    53                                  MSG_SEG_REG:
-    54 00000066 202D3E205365676D65-      db ' -> Segment register',0x00
-    54 0000006F 6E7420726567697374-
-    54 00000078 657200             
+    53                                  end_search_string:
+    54 00000064 EBFE                     jmp $
     55                                  
-    56                                  MSG_ADDRESS:
-    57 0000007B 202D3E204164647265-      db ' -> Address',0x00
-    57 00000084 737300             
+    56                                  MSG_SEG_REG:
+    57 00000066 202D3E205365676D65-      db ' -> Segment register',0x00
+    57 0000006F 6E7420726567697374-
+    57 00000078 657200             
     58                                  
-    59                                  FINDME:
-    60 00000087 42494F5300               db 'BIOS',0x00
+    59                                  MSG_ADDRESS:
+    60 0000007B 202D3E204164647265-      db ' -> Address',0x00
+    60 00000084 737300             
     61                                  
-    62                                  HEX_OUT:			;HEX_OUT is address at print_hex output
-    63 0000008C 30783030303000           db '0x0000',0x00
+    62                                  FINDME:
+    63 00000087 42494F5300               db 'BIOS',0x00
     64                                  
-    65                                  %include "print_hex_callee.asm"
+    65                                  HEX_OUT:			;HEX_OUT is address at print_hex output
+    66 0000008C 30783030303000           db '0x0000',0x00
+    67                                  
+    68                                  %include "print_hex_callee.asm"
      1                              <1> print_hex:
      2 00000093 60                  <1> 	pusha
      3                              <1> 
@@ -126,7 +129,7 @@
     58                              <1> HEX_MAP:
     59 00000106 303132333435363738- <1>  db '0123456789abcdef',0x00
     59 0000010F 3961626364656600    <1>
-    66                                  %include "print_string_callee.asm"
+    69                                  %include "print_string_callee.asm"
      1                              <1> print_string:
      2 00000117 60                  <1> 	pusha	;push all registers to be polite
      3                              <1> 	
@@ -149,12 +152,12 @@
     20 0000012B CD10                <1> 	int 0x10	;print a new line
     21 0000012D 61                  <1> 	popa	;pop all registers to be polite
     22 0000012E C3                  <1> 	ret	;pop return address and jump to it
-    67                                  
-    68                                  MSG:
-    69 0000012F 536561726368696E67-      db 'Searching for string BIOS ...',0x00
-    69 00000138 20666F722073747269-
-    69 00000141 6E672042494F53202E-
-    69 0000014A 2E2E00             
     70                                  
-    71 0000014D 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512 Bytes at boot sector
-    72 000001FE 55AA                    dw 0xaa55			;boot sector signature
+    71                                  MSG:
+    72 0000012F 536561726368696E67-      db 'Searching for string BIOS ...',0x00
+    72 00000138 20666F722073747269-
+    72 00000141 6E672042494F53202E-
+    72 0000014A 2E2E00             
+    73                                  
+    74 0000014D 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512 Bytes at boot sector
+    75 000001FE 55AA                    dw 0xaa55			;boot sector signature

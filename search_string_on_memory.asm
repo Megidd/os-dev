@@ -42,7 +42,10 @@ next_seg_reg:
   mov cx, es			;increment ES indirectly => processor limitation at 16-bit real mode
   inc cx
   mov es, cx
-  cmp cx, 0x07c1
+  cmp cx, 0x07c1		;Stop the loop at segment 0x07c1, i.e. the segment after our boot sector code 
+				;(our boot sector code is loaded at memory segment 0x07c0), 
+				;to check if the string at our boot sector code is found or not
+				;
   je end_search_string
   cmp cx, 0xffff
   jne next_seg_reg
