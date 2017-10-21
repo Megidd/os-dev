@@ -42,10 +42,13 @@ next_seg_reg:
   mov cx, es			;increment ES indirectly => processor limitation at 16-bit real mode
   inc cx
   mov es, cx
+  cmp cx, 0x07c1
+  je end_search_string
   cmp cx, 0xffff
   jne next_seg_reg
 
-jmp $
+end_search_string:
+ jmp $
 
 MSG_SEG_REG:
  db ' -> Segment register',0x00

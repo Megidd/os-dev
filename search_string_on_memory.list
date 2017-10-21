@@ -1,5 +1,5 @@
-     1 00000000 BB[2901]                mov bx, MSG
-     2 00000003 E80B01                  call print_string
+     1 00000000 BB[2F01]                mov bx, MSG
+     2 00000003 E81101                  call print_string
      3                                  
      4 00000006 B90000                  mov cx, 0x0000
      5 00000009 8EC1                    mov es, cx			;clear ES, i.e. segment register indirectly 
@@ -23,17 +23,17 @@
     23 00000026 26803D53                  cmp byte [es:di], 'S'
     24 0000002A 7522                      jne continue_search_string
     25 0000002C 89F2                      mov dx, si			;DX is print_hex input
-    26 0000002E E85C00                    call print_hex
-    27 00000031 BB[8600]                  mov bx, HEX_OUT
-    28 00000034 E8DA00                    call print_string		;print SI which is start address of 'BIOS' string
-    29 00000037 BB[7500]                  mov bx, MSG_ADDRESS
-    30 0000003A E8D400                    call print_string
+    26 0000002E E86200                    call print_hex
+    27 00000031 BB[8C00]                  mov bx, HEX_OUT
+    28 00000034 E8E000                    call print_string		;print SI which is start address of 'BIOS' string
+    29 00000037 BB[7B00]                  mov bx, MSG_ADDRESS
+    30 0000003A E8DA00                    call print_string
     31 0000003D 8CC2                      mov dx, es			;DX is print_hex input;
-    32 0000003F E84B00                    call print_hex
-    33 00000042 BB[8600]                  mov bx, HEX_OUT
-    34 00000045 E8C900                    call print_string		;print ES which is extra data segment register
-    35 00000048 BB[6000]                  mov bx, MSG_SEG_REG
-    36 0000004B E8C300                    call print_string
+    32 0000003F E85100                    call print_hex
+    33 00000042 BB[8C00]                  mov bx, HEX_OUT
+    34 00000045 E8CF00                    call print_string		;print ES which is extra data segment register
+    35 00000048 BB[6600]                  mov bx, MSG_SEG_REG
+    36 0000004B E8C900                    call print_string
     37                                  
     38                                   continue_search_string:
     39 0000004E 47                        inc di
@@ -42,116 +42,119 @@
     42 00000054 8CC1                      mov cx, es			;increment ES indirectly => processor limitation at 16-bit real mode
     43 00000056 41                        inc cx
     44 00000057 8EC1                      mov es, cx
-    45 00000059 83F9FF                    cmp cx, 0xffff
-    46 0000005C 75AD                      jne next_seg_reg
-    47                                  
-    48 0000005E EBFE                    jmp $
+    45 00000059 81F9C107                  cmp cx, 0x07c1
+    46 0000005D 7405                      je end_search_string
+    47 0000005F 83F9FF                    cmp cx, 0xffff
+    48 00000062 75A7                      jne next_seg_reg
     49                                  
-    50                                  MSG_SEG_REG:
-    51 00000060 202D3E205365676D65-      db ' -> Segment register',0x00
-    51 00000069 6E7420726567697374-
-    51 00000072 657200             
+    50                                  end_search_string:
+    51 00000064 EBFE                     jmp $
     52                                  
-    53                                  MSG_ADDRESS:
-    54 00000075 202D3E204164647265-      db ' -> Address',0x00
-    54 0000007E 737300             
+    53                                  MSG_SEG_REG:
+    54 00000066 202D3E205365676D65-      db ' -> Segment register',0x00
+    54 0000006F 6E7420726567697374-
+    54 00000078 657200             
     55                                  
-    56                                  FINDME:
-    57 00000081 42494F5300               db 'BIOS',0x00
+    56                                  MSG_ADDRESS:
+    57 0000007B 202D3E204164647265-      db ' -> Address',0x00
+    57 00000084 737300             
     58                                  
-    59                                  HEX_OUT:			;HEX_OUT is address at print_hex output
-    60 00000086 30783030303000           db '0x0000',0x00
+    59                                  FINDME:
+    60 00000087 42494F5300               db 'BIOS',0x00
     61                                  
-    62                                  %include "print_hex_callee.asm"
+    62                                  HEX_OUT:			;HEX_OUT is address at print_hex output
+    63 0000008C 30783030303000           db '0x0000',0x00
+    64                                  
+    65                                  %include "print_hex_callee.asm"
      1                              <1> print_hex:
-     2 0000008D 60                  <1> 	pusha
+     2 00000093 60                  <1> 	pusha
      3                              <1> 
      4                              <1> 	; 5th digit
-     5 0000008E 88D1                <1> 	mov cl,dl	;The least significant byte
-     6 00000090 80E10F              <1> 	and cl,0x0f	;cl contains only a half-byte
-     7 00000093 B500                <1> 	mov ch, 0x00
-     8 00000095 31F6                <1> 	xor si, si	;empty si
-     9 00000097 89CE                <1> 	mov si, cx
-    10 00000099 81C6007C            <1> 	add si, 0x7c00
-    11 0000009D 81C6[0001]          <1> 	add si, HEX_MAP
-    12 000000A1 8A0C                <1> 	mov cl, [si]
-    13 000000A3 880E[8B7C]          <1> 	mov [0x7c00+HEX_OUT+5], cl
+     5 00000094 88D1                <1> 	mov cl,dl	;The least significant byte
+     6 00000096 80E10F              <1> 	and cl,0x0f	;cl contains only a half-byte
+     7 00000099 B500                <1> 	mov ch, 0x00
+     8 0000009B 31F6                <1> 	xor si, si	;empty si
+     9 0000009D 89CE                <1> 	mov si, cx
+    10 0000009F 81C6007C            <1> 	add si, 0x7c00
+    11 000000A3 81C6[0601]          <1> 	add si, HEX_MAP
+    12 000000A7 8A0C                <1> 	mov cl, [si]
+    13 000000A9 880E[917C]          <1> 	mov [0x7c00+HEX_OUT+5], cl
     14                              <1> 
     15                              <1> 	; 4th digit
-    16 000000A7 88D1                <1> 	mov cl,dl
-    17 000000A9 80E1F0              <1> 	and cl,0xf0
-    18 000000AC C0E904              <1> 	shr cl,0x04	;shift cl to right, 4 times
-    19 000000AF 80E10F              <1> 	and cl,0x0f
-    20 000000B2 B500                <1> 	mov ch, 0x00
-    21 000000B4 31F6                <1> 	xor si, si	;empty si
-    22 000000B6 89CE                <1> 	mov si, cx
-    23 000000B8 81C6007C            <1> 	add si, 0x7c00
-    24 000000BC 81C6[0001]          <1> 	add si, HEX_MAP
-    25 000000C0 8A0C                <1> 	mov cl, [si]
-    26 000000C2 880E[8A7C]          <1> 	mov [HEX_OUT+0x7c00+4], cl
+    16 000000AD 88D1                <1> 	mov cl,dl
+    17 000000AF 80E1F0              <1> 	and cl,0xf0
+    18 000000B2 C0E904              <1> 	shr cl,0x04	;shift cl to right, 4 times
+    19 000000B5 80E10F              <1> 	and cl,0x0f
+    20 000000B8 B500                <1> 	mov ch, 0x00
+    21 000000BA 31F6                <1> 	xor si, si	;empty si
+    22 000000BC 89CE                <1> 	mov si, cx
+    23 000000BE 81C6007C            <1> 	add si, 0x7c00
+    24 000000C2 81C6[0601]          <1> 	add si, HEX_MAP
+    25 000000C6 8A0C                <1> 	mov cl, [si]
+    26 000000C8 880E[907C]          <1> 	mov [HEX_OUT+0x7c00+4], cl
     27                              <1> 
     28                              <1> 	; 3rd digit
-    29 000000C6 88F1                <1> 	mov cl,dh
-    30 000000C8 80E10F              <1> 	and cl,0x0f
-    31 000000CB B500                <1> 	mov ch, 0x00
-    32 000000CD 31F6                <1> 	xor si, si	;empty si
-    33 000000CF 89CE                <1> 	mov si, cx
-    34 000000D1 81C6007C            <1> 	add si, 0x7c00
-    35 000000D5 81C6[0001]          <1> 	add si, HEX_MAP
-    36 000000D9 8A0C                <1> 	mov cl, [si]
-    37 000000DB 880E[897C]          <1> 	mov [HEX_OUT+0x7c00+3], cl
+    29 000000CC 88F1                <1> 	mov cl,dh
+    30 000000CE 80E10F              <1> 	and cl,0x0f
+    31 000000D1 B500                <1> 	mov ch, 0x00
+    32 000000D3 31F6                <1> 	xor si, si	;empty si
+    33 000000D5 89CE                <1> 	mov si, cx
+    34 000000D7 81C6007C            <1> 	add si, 0x7c00
+    35 000000DB 81C6[0601]          <1> 	add si, HEX_MAP
+    36 000000DF 8A0C                <1> 	mov cl, [si]
+    37 000000E1 880E[8F7C]          <1> 	mov [HEX_OUT+0x7c00+3], cl
     38                              <1> 
     39                              <1> 	; 2nd digit
-    40 000000DF 88F1                <1> 	mov cl,dh
-    41 000000E1 80E1F0              <1> 	and cl,0xf0
-    42 000000E4 C0E904              <1> 	shr cl,0x04	;shitf cl to right, 4 times
-    43 000000E7 80E10F              <1> 	and cl,0x0f
-    44 000000EA B500                <1> 	mov ch, 0x00
-    45 000000EC 31F6                <1> 	xor si, si	;empty si
-    46 000000EE 89CE                <1> 	mov si, cx
-    47 000000F0 81C6007C            <1> 	add si, 0x7c00
-    48 000000F4 81C6[0001]          <1> 	add si, HEX_MAP
-    49 000000F8 8A0C                <1> 	mov cl, [si]
-    50 000000FA 880E[887C]          <1> 	mov [HEX_OUT+0x7c00+2], cl
+    40 000000E5 88F1                <1> 	mov cl,dh
+    41 000000E7 80E1F0              <1> 	and cl,0xf0
+    42 000000EA C0E904              <1> 	shr cl,0x04	;shitf cl to right, 4 times
+    43 000000ED 80E10F              <1> 	and cl,0x0f
+    44 000000F0 B500                <1> 	mov ch, 0x00
+    45 000000F2 31F6                <1> 	xor si, si	;empty si
+    46 000000F4 89CE                <1> 	mov si, cx
+    47 000000F6 81C6007C            <1> 	add si, 0x7c00
+    48 000000FA 81C6[0601]          <1> 	add si, HEX_MAP
+    49 000000FE 8A0C                <1> 	mov cl, [si]
+    50 00000100 880E[8E7C]          <1> 	mov [HEX_OUT+0x7c00+2], cl
     51                              <1> 
     52                              <1> 	; 1st digit is already correct: 'x'
     53                              <1> 	; zero digit is already correct: '0'
     54                              <1> 
-    55 000000FE 61                  <1> 	popa
-    56 000000FF C3                  <1> 	ret
+    55 00000104 61                  <1> 	popa
+    56 00000105 C3                  <1> 	ret
     57                              <1> 
     58                              <1> HEX_MAP:
-    59 00000100 303132333435363738- <1>  db '0123456789abcdef',0x00
-    59 00000109 3961626364656600    <1>
-    63                                  %include "print_string_callee.asm"
+    59 00000106 303132333435363738- <1>  db '0123456789abcdef',0x00
+    59 0000010F 3961626364656600    <1>
+    66                                  %include "print_string_callee.asm"
      1                              <1> print_string:
-     2 00000111 60                  <1> 	pusha	;push all registers to be polite
+     2 00000117 60                  <1> 	pusha	;push all registers to be polite
      3                              <1> 	
-     4 00000112 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
+     4 00000118 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
      5                              <1> 
-     6 00000114 81C3007C            <1> 	add bx,0x7c00	;boot sector is loaded at 0x7c00 address
+     6 0000011A 81C3007C            <1> 	add bx,0x7c00	;boot sector is loaded at 0x7c00 address
      7                              <1> 			;therefore 0x7c00 needs to be added to the data address
      8                              <1> 			;to get the correct absolute data address
      9                              <1> 	
     10                              <1> print_next_byte:
-    11 00000118 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
-    12 0000011A 3C00                <1> 	cmp al,0x00
-    13 0000011C 7405                <1> 	je null_terminated
-    14 0000011E CD10                <1> 	int 0x10
-    15 00000120 43                  <1> 	inc bx
-    16 00000121 EBF5                <1> 	jmp print_next_byte
+    11 0000011E 8A07                <1> 	mov al,[bx]	;bx is used as function parameter
+    12 00000120 3C00                <1> 	cmp al,0x00
+    13 00000122 7405                <1> 	je null_terminated
+    14 00000124 CD10                <1> 	int 0x10
+    15 00000126 43                  <1> 	inc bx
+    16 00000127 EBF5                <1> 	jmp print_next_byte
     17                              <1> 	
     18                              <1> null_terminated:
-    19 00000123 B00A                <1> 	mov al,0x0a	;new line character
-    20 00000125 CD10                <1> 	int 0x10	;print a new line
-    21 00000127 61                  <1> 	popa	;pop all registers to be polite
-    22 00000128 C3                  <1> 	ret	;pop return address and jump to it
-    64                                  
-    65                                  MSG:
-    66 00000129 536561726368696E67-      db 'Searching for string BIOS ...',0x00
-    66 00000132 20666F722073747269-
-    66 0000013B 6E672042494F53202E-
-    66 00000144 2E2E00             
+    19 00000129 B00A                <1> 	mov al,0x0a	;new line character
+    20 0000012B CD10                <1> 	int 0x10	;print a new line
+    21 0000012D 61                  <1> 	popa	;pop all registers to be polite
+    22 0000012E C3                  <1> 	ret	;pop return address and jump to it
     67                                  
-    68 00000147 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512 Bytes at boot sector
-    69 000001FE 55AA                    dw 0xaa55			;boot sector signature
+    68                                  MSG:
+    69 0000012F 536561726368696E67-      db 'Searching for string BIOS ...',0x00
+    69 00000138 20666F722073747269-
+    69 00000141 6E672042494F53202E-
+    69 0000014A 2E2E00             
+    70                                  
+    71 0000014D 00<rept>                times 510-($-$$) db 0x00	;padding to fill 512 Bytes at boot sector
+    72 000001FE 55AA                    dw 0xaa55			;boot sector signature
