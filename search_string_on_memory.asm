@@ -20,14 +20,13 @@ start_search_string:
  call print_hex			;print SI which is start address of 'BIOS' string
  mov bx, HEX_OUT		;BX is print_string input
  call print_string
- jmp end_search_string
 
  continue_search_string:
   inc di
-  jmp start_search_string
+  cmp di, 0xffff
+  jne start_search_string
 
-end_search_string:
- jmp $
+jmp $
 
 FINDME:
  db 'BIOS',0x00
