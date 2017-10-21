@@ -1,10 +1,12 @@
 mov bx, MSG
 call print_string
 
-xor di, di			;clear DI
+xor di, di			;clear DI which is loop counter over memory addresses
+xor si, si			;clear SI which stores the address of 'BIOS' string if any found
 start_search_string:
  cmp byte [di], 'B'		;only BX/BP/DI/SI registers can be used for addressing in 16-bit real mode
  jne continue_search_string
+ mov si, di			;store 'B' address in SI for later use
  inc di
  cmp byte [di], 'I'
  jne continue_search_string
@@ -14,16 +16,18 @@ start_search_string:
  inc di
  cmp byte [di], 'S'
  jne continue_search_string
- mov dx, di			;DX is print_hex input
- call print_hex
+ mov dx, si			;DX is print_hex input
+ call print_hex			;print SI which is start address of 'BIOS' string
  mov bx, HEX_OUT		;BX is print_string input
  call print_string
+ jmp end_search_string
 
  continue_search_string:
   inc di
   jmp start_search_string
 
-jmp $
+end_search_string:
+ jmp $
 
 FINDME:
  db 'BIOS',0x00
