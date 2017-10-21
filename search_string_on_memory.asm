@@ -1,26 +1,26 @@
 mov bx, MSG
 call print_string
 
-xor cx, cx			;clear CX
+xor di, di			;clear DI
 start_search_string:
- cmp [cx], 'B'
+ cmp byte [di], 'B'		;only BX/BP/DI/SI registers can be used for addressing in 16-bit real mode
  jne continue_search_string
- inc cx
- cmp [cx], 'I'
+ inc di
+ cmp byte [di], 'I'
  jne continue_search_string
- inc cx
- cmp [cx], 'O'
+ inc di
+ cmp byte [di], 'O'
  jne continue_search_string
- inc cx
- cmp [cx], 'S'
+ inc di
+ cmp byte [di], 'S'
  jne continue_search_string
- mov dx, cx			;DX is print_hex input
+ mov dx, di			;DX is print_hex input
  call print_hex
  mov bx, HEX_OUT		;BX is print_string input
  call print_string
 
  continue_search_string:
-  inc cx
+  inc di
   jmp start_search_string
 
 jmp $
