@@ -1,6 +1,6 @@
 all:	search_string_on_memory.bin
 
-search_string_on_memory.bin:	search_string_on_memory.asm	print_hex_callee.asm	print_string_callee.asm
+search_string_on_memory.bin:	search_string_on_memory.asm	print_hex_callee.asm	print_string_callee.asm	print_string_abs.asm
 	nasm search_string_on_memory.asm -f bin -o search_string_on_memory.bin -l search_string_on_memory.list
 
 #all:	disk_load_caller.bin

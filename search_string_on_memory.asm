@@ -34,6 +34,9 @@ next_seg_reg:
   call print_string		;print ES which is extra data segment register
   mov bx, MSG_SEG_REG
   call print_string
+  mov bx, si
+  call print_string_abs		;print BIOS string from start address of 'B' to first 0x00
+				;start address of 'B' is absolute, i.e. can be anywhere in memory
 
  continue_search_string:
   inc di
@@ -67,6 +70,7 @@ HEX_OUT:			;HEX_OUT is address at print_hex output
 
 %include "print_hex_callee.asm"
 %include "print_string_callee.asm"
+%include "print_string_abs.asm"
 
 MSG:
  db 'Searching for string BIOS ...',0x00
