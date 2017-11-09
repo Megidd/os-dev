@@ -1,16 +1,20 @@
+[org 0x7c00]
+
 ; A boot sector that enters 32 - bit protected mode.
 mov bp, 0x9000
 mov sp, bp
 
 mov bx, MSG_REAL_MODE
-call print_string
+;call print_string
+call print_string_abs
 
 call switch_to_pm	; Note that we never return from here,
 			; because it will jump to BEGIN_PM
 
 jmp $
 
-%include "print_string_callee.asm"
+;%include "print_string_callee.asm"
+%include "print_string_abs.asm"
 %include "gdt.asm"
 %include "print_string_pm.asm"
 %include "switch_to_pm.asm"
