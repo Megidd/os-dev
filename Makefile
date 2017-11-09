@@ -1,7 +1,12 @@
-all:	search_string_on_memory.bin
+all:	switch_to_pm_boot_sector.bin
 
-search_string_on_memory.bin:	search_string_on_memory.asm	print_hex_callee.asm	print_string_callee.asm	print_string_abs.asm
-	nasm search_string_on_memory.asm -f bin -o search_string_on_memory.bin -l search_string_on_memory.list
+switch_to_pm_boot_sector.bin:	switch_to_pm_boot_sector.asm gdt.asm switch_to_pm.asm print_string_pm.asm
+	nasm switch_to_pm_boot_sector.asm -f bin -o switch_to_pm_boot_sector.bin -l switch_to_pm_boot_sector.list
+
+#all:	search_string_on_memory.bin
+
+#search_string_on_memory.bin:	search_string_on_memory.asm	print_hex_callee.asm	print_string_callee.asm	print_string_abs.asm
+#	nasm search_string_on_memory.asm -f bin -o search_string_on_memory.bin -l search_string_on_memory.list
 
 #all:	disk_load_caller.bin
 
