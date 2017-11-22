@@ -4,8 +4,8 @@ clean:
 	rm -f kernel.o kernel.bin kernel.dis
 
 kernel.o: kernel.c
-	#clang -ffreestanding -c kernel.c -o kernel.o
-	gcc -ffreestanding -c kernel.c -o kernel.o
+	clang -ffreestanding -c kernel.c -o kernel.o
+	#gcc -ffreestanding -c kernel.c -o kernel.o
 
 kernel.bin: kernel.o
 	ld -o kernel.bin -Ttext 0x1000 kernel.o --oformat binary
