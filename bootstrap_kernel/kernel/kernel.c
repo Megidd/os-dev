@@ -6,6 +6,20 @@ void main(){
 	 * 0d3360 = 0x0d20
 	 * Video Graphics Array (VGA) colour text mode with dimmensions 80x25 characters
 	 */
+	char*msg="Kernel is running ... enjoy!";
+	char cont_msg=0x01;
+	int i=0;
+	int j=0;
+	while(cont_msg==0x01){
+		*(video_memory+j)=*(msg+i);	//char hex code
+		*(video_memory+j+1)=i+1;	//char color
+		i++;
+		if(*(msg+i)==0x00){
+			cont_msg=0x00;
+		}
+		j=j+2;
+	}
+	/*
 	*video_memory='K';
 	*(video_memory+1)=0x0f;//white on black
 	*(video_memory+2)='e';
@@ -26,5 +40,6 @@ void main(){
 	*(video_memory+28)='i';
 	*(video_memory+30)='n';
 	*(video_memory+32)='g';
+	*/
 	return;
 }
