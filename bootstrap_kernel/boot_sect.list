@@ -1,0 +1,49 @@
+     1                                  ; A boot sector that boots a C kernel in 32 - bit protected mode
+     2                                  [org 0x7c00]
+     3                                  KERNEL_OFFSET equ 0x1000
+     4 00000000 8816[2600]              mov [BOOT_DRIVE], dl	; BIOS stores our boot drive in DL , so it 's
+     5                                  			; best to remember this for later
+     6                                  
+     7 00000004 BD0090                  mov bp, 0x9000		; Set -up the stack.
+     8 00000007 89EC                    mov sp, bp
+     9                                  
+    10 00000009 BB[2700]                mov bx, MSG_REAL_MODE
+    11 0000000C E80200                  call print_string_abs
+    12                                  
+    13 0000000F EBFE                    jmp $
+    14                                  
+    15                                  ; Include our useful , hard - earned routines
+    16                                  %include "routines/print_string_abs.asm"
+     1                              <1> print_string_abs:
+     2 00000011 60                  <1> 	pusha	;push all registers to be polite
+     3                              <1> 	
+     4 00000012 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
+     5                              <1> 
+     6                              <1> 	;add bx,0x7c00	;boot sector is loaded at 0x7c00 address
+     7                              <1> 			;therefore 0x7c00 needs to be added to the data address
+     8                              <1> 			;to get the correct absolute data address
+     9                              <1> 	
+    10                              <1> print_next_byte_abs:
+    11 00000014 268A07              <1> 	mov al,[es:bx]	;bx is used as function parameter
+    12 00000017 3C00                <1> 	cmp al,0x00
+    13 00000019 7405                <1> 	je null_terminated_abs
+    14 0000001B CD10                <1> 	int 0x10
+    15 0000001D 43                  <1> 	inc bx
+    16 0000001E EBF4                <1> 	jmp print_next_byte_abs
+    17                              <1> 	
+    18                              <1> null_terminated_abs:
+    19 00000020 B00A                <1> 	mov al,0x0a	;new line character
+    20 00000022 CD10                <1> 	int 0x10	;print a new line
+    21 00000024 61                  <1> 	popa	;pop all registers to be polite
+    22 00000025 C3                  <1> 	ret	;pop return address and jump to it
+    17                                  
+    18                                  ; Global variables
+    19 00000026 00                      BOOT_DRIVE: db 0x00
+    20 00000027 5374617274696E6720-     MSG_REAL_MODE: db "Starting in 16-bit real mode ...",0x00
+    20 00000030 696E2031362D626974-
+    20 00000039 207265616C206D6F64-
+    20 00000042 65202E2E2E00       
+    21                                  
+    22                                  ; Bootsector padding
+    23 00000048 00<rept>                times 510-($-$$) db 0x00
+    24 000001FE 55AA                    dw 0xaa55
