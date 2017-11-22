@@ -1,0 +1,9 @@
+#Tell  bochs to use our  boot  sector  code as  though  it were
+# a floppy  disk  inserted  into a computer  at boot  time.
+
+floppya: 1_44=switch_to_pm_boot_sector.bin , status=inserted
+#floppya: 1_44=search_string_on_memory.bin , status=inserted
+#floppya: 1_44=disk_load_caller.bin , status=inserted
+#floppya: 1_44=print_hex_caller.bin , status=inserted
+
+boot: a

@@ -1,0 +1,37 @@
+     1 00000000 B40E                    mov ah,0x0e
+     2                                  
+     3 00000002 BD0080                  mov bp,0x8000
+     4 00000005 89EC                    mov sp,bp
+     5                                  
+     6 00000007 6A41                    push 'A'
+     7 00000009 6A42                    push 'B'
+     8 0000000B 6A43                    push 'C'
+     9                                  
+    10                                  ;pop bx
+    11                                  ;mov al,bl
+    12                                  ;int 0x10
+    13                                  
+    14                                  ;pop bx
+    15                                  ;mov al,bl
+    16                                  ;int 0x10
+    17                                  
+    18                                  ;mov al,[0x8000-0x2]
+    19                                  ;int 0x10
+    20                                  
+    21 0000000D B00A                    mov al,0x0a	;next line
+    22 0000000F CD10                    int 0x10
+    23                                  
+    24 00000011 A0FA7F                  mov al,[0x8000-0x06]
+    25 00000014 CD10                    int 0x10
+    26                                  
+    27 00000016 A0FC7F                  mov al,[0x8000-0x04]
+    28 00000019 CD10                    int 0x10
+    29                                  
+    30 0000001B A0FE7F                  mov al,[0x8000-0x02]
+    31 0000001E CD10                    int 0x10
+    32                                  
+    33 00000020 EBFE                    jmp $
+    34                                  
+    35 00000022 00<rept>                times 510-($-$$) db 0x00
+    36                                  
+    37 000001FE 55AA                    dw 0xaa55
