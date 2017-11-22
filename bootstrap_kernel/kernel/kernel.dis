@@ -1,10 +1,12 @@
 00000000  55                push ebp
 00000001  89E5              mov ebp,esp
 00000003  50                push eax
-00000004  B800800B00        mov eax,0xb8000
+00000004  B8208D0B00        mov eax,0xb8d20
 00000009  8945FC            mov [ebp-0x4],eax
 0000000C  8B45FC            mov eax,[ebp-0x4]
 0000000F  C60058            mov byte [eax],0x58
-00000012  83C404            add esp,byte +0x4
-00000015  5D                pop ebp
-00000016  C3                ret
+00000012  8B45FC            mov eax,[ebp-0x4]
+00000015  C640010F          mov byte [eax+0x1],0xf
+00000019  83C404            add esp,byte +0x4
+0000001C  5D                pop ebp
+0000001D  C3                ret

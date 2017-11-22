@@ -1,49 +1,258 @@
      1                                  ; A boot sector that boots a C kernel in 32 - bit protected mode
      2                                  [org 0x7c00]
      3                                  KERNEL_OFFSET equ 0x1000
-     4 00000000 8816[2600]              mov [BOOT_DRIVE], dl	; BIOS stores our boot drive in DL , so it 's
+     4 00000000 8816[EB00]              mov [BOOT_DRIVE], dl	; BIOS stores our boot drive in DL , so it 's
      5                                  			; best to remember this for later
      6                                  
-     7 00000004 BD0090                  mov bp, 0x9000		; Set -up the stack.
+     7 00000004 BD0090                  mov bp, 0x9000		; Set-up the stack.
      8 00000007 89EC                    mov sp, bp
      9                                  
-    10 00000009 BB[2700]                mov bx, MSG_REAL_MODE
-    11 0000000C E80200                  call print_string_abs
+    10 00000009 BB[EC00]                mov bx, MSG_REAL_MODE
+    11 0000000C E80800                  call print_string_abs
     12                                  
-    13 0000000F EBFE                    jmp $
-    14                                  
-    15                                  ; Include our useful , hard - earned routines
-    16                                  %include "routines/print_string_abs.asm"
+    13 0000000F E8B500                  call load_kernel
+    14 00000012 E84600                  call switch_to_pm
+    15                                  
+    16 00000015 EBFE                    jmp $			; Hang
+    17                                  
+    18                                  ; Include our useful , hard - earned routines
+    19                                  %include "routines/print_string_abs.asm"
      1                              <1> print_string_abs:
-     2 00000011 60                  <1> 	pusha	;push all registers to be polite
+     2 00000017 60                  <1> 	pusha	;push all registers to be polite
      3                              <1> 	
-     4 00000012 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
+     4 00000018 B40E                <1> 	mov ah, 0x0e	;BIOS tele - type output
      5                              <1> 
      6                              <1> 	;add bx,0x7c00	;boot sector is loaded at 0x7c00 address
      7                              <1> 			;therefore 0x7c00 needs to be added to the data address
      8                              <1> 			;to get the correct absolute data address
      9                              <1> 	
     10                              <1> print_next_byte_abs:
-    11 00000014 268A07              <1> 	mov al,[es:bx]	;bx is used as function parameter
-    12 00000017 3C00                <1> 	cmp al,0x00
-    13 00000019 7405                <1> 	je null_terminated_abs
-    14 0000001B CD10                <1> 	int 0x10
-    15 0000001D 43                  <1> 	inc bx
-    16 0000001E EBF4                <1> 	jmp print_next_byte_abs
+    11 0000001A 268A07              <1> 	mov al,[es:bx]	;bx is used as function parameter
+    12 0000001D 3C00                <1> 	cmp al,0x00
+    13 0000001F 7405                <1> 	je null_terminated_abs
+    14 00000021 CD10                <1> 	int 0x10
+    15 00000023 43                  <1> 	inc bx
+    16 00000024 EBF4                <1> 	jmp print_next_byte_abs
     17                              <1> 	
     18                              <1> null_terminated_abs:
-    19 00000020 B00A                <1> 	mov al,0x0a	;new line character
-    20 00000022 CD10                <1> 	int 0x10	;print a new line
-    21 00000024 61                  <1> 	popa	;pop all registers to be polite
-    22 00000025 C3                  <1> 	ret	;pop return address and jump to it
-    17                                  
-    18                                  ; Global variables
-    19 00000026 00                      BOOT_DRIVE: db 0x00
-    20 00000027 5374617274696E6720-     MSG_REAL_MODE: db "Starting in 16-bit real mode ...",0x00
-    20 00000030 696E2031362D626974-
-    20 00000039 207265616C206D6F64-
-    20 00000042 65202E2E2E00       
-    21                                  
-    22                                  ; Bootsector padding
-    23 00000048 00<rept>                times 510-($-$$) db 0x00
-    24 000001FE 55AA                    dw 0xaa55
+    19 00000026 B00A                <1> 	mov al,0x0a	;new line character
+    20 00000028 CD10                <1> 	int 0x10	;print a new line
+    21 0000002A 61                  <1> 	popa	;pop all registers to be polite
+    22 0000002B C3                  <1> 	ret	;pop return address and jump to it
+    20                                  %include "routines/disk_load_callee.asm"
+     1                              <1> disk_load:
+     2 0000002C 60                  <1>  pusha
+     3                              <1> 
+     4 0000002D 52                  <1>  push dx		; Store  DX on  stack  so  later  we can  recall
+     5                              <1> 			; how  many  sectors  were  request  to be read ,
+     6                              <1> 			; even if it is  altered  in the  meantime
+     7                              <1>  
+     8 0000002E 88F0                <1>  mov al, dh		; DX is input, DH stores how many sectors to read
+     9                              <1> 
+    10 00000030 B402                <1>  mov ah, 0x02		; BIOS read sector function
+    11                              <1> 
+    12                              <1> ; mov dl, 0x00		; first floppy drive
+    13                              <1> 			; DL stores boot_drive, set by the caller
+    14                              <1> 
+    15                              <1> ; DL is already set by the caller as BOOT_DRIVE
+    16                              <1> 
+    17                              <1> ; mov ch, 0x03		; select cylinder 3
+    18                              <1> 
+    19 00000032 B500                <1>  mov ch, 0x00		; cylinder 0
+    20                              <1> 
+    21                              <1> ; mov dh, 0x01		; Select the track on 2nd side of floppy
+    22                              <1> 			; disk , since this count has a base of 0
+    23                              <1> 
+    24 00000034 B600                <1>  mov dh, 0x00		; Select head 0
+    25                              <1> 
+    26                              <1> ; mov cl, 0x04		; Select  the 4th  sector  on the  track  - not
+    27                              <1> 			; the 5th , since  this  has a base of 1.
+    28                              <1> 
+    29 00000036 B102                <1>  mov cl, 0x02		; Start  reading  from  second  sector (i.e.
+    30                              <1> 			; after  the  boot  sector)
+    31                              <1> 
+    32                              <1> ; BX is already set by the caller as the destination address
+    33                              <1> 
+    34 00000038 CD13                <1>  int 0x13
+    35 0000003A 7207                <1>  jc disk_error
+    36                              <1> 
+    37 0000003C 5A                  <1>  pop dx
+    38 0000003D 38C6                <1>  cmp dh, al		; if AL (sectors read) != DH (sectors expected)
+    39 0000003F 7502                <1>  jne disk_error
+    40                              <1>  
+    41 00000041 61                  <1>  popa
+    42 00000042 C3                  <1>  ret
+    43                              <1> 
+    44                              <1>  disk_error:
+    45 00000043 BB[4B00]            <1>  	mov bx, DISK_ERROR_MSG
+    46 00000046 E8CEFF              <1>  	call print_string_abs
+    47 00000049 EBFE                <1> 	jmp $		; jump forever to the same line
+    48                              <1> 
+    49                              <1>  DISK_ERROR_MSG:
+    50 0000004B 4469736B2072656164- <1>  	db 'Disk read error',0x00
+    50 00000054 206572726F7200      <1>
+    21                                  %include "routines/switch_to_pm.asm"
+     1                              <1> [bits 16]
+     2                              <1> ;switch to protected mode
+     3                              <1> 
+     4                              <1> switch_to_pm:
+     5                              <1> 
+     6 0000005B FA                  <1>  cli 	; We must switch of interrupts until we have
+     7                              <1> 	; set -up the protected mode interrupt vector
+     8                              <1> 	; otherwise interrupts will run riot.
+     9                              <1> 
+    10 0000005C 0F0116[A200]        <1>  lgdt [gdt_descriptor]	; Load our global descriptor table , which defines
+    11                              <1> 			; the protected mode segments ( e.g. for code and data )
+    12                              <1> 
+    13 00000061 0F20C0              <1>  mov eax, cr0
+    14 00000064 6683C801            <1>  or eax, 0x00000001
+    15 00000068 0F22C0              <1>  mov cr0, eax		; To make the switch to protected mode , we set
+    16                              <1> 			; the first bit of CR0 , a control register
+    17                              <1> 
+    18 0000006B EA[7000]0800        <1>  jmp CODE_SEG:init_pm	; Make a far jump ( i.e. to a new segment ) to our 32 - bit
+    19                              <1> 			; code. This also forces the CPU to flush its cache of
+    20                              <1> 			; pre - fetched and real - mode decoded instructions , which can
+    21                              <1> 			; cause problems.
+    22                              <1> 
+    23                              <1>  [bits 32]
+    24                              <1> 
+    25                              <1>  init_pm:
+    26                              <1>   ; Initialise registers and the stack once in PM.
+    27 00000070 66B81000            <1>   mov ax, DATA_SEG
+    28 00000074 8ED8                <1>   mov ds, ax
+    29 00000076 8ED0                <1>   mov ss, ax
+    30 00000078 8EC0                <1>   mov es, ax
+    31 0000007A 8EE0                <1>   mov fs, ax
+    32 0000007C 8EE8                <1>   mov gs, ax
+    33                              <1> 
+    34 0000007E BD00000900          <1>   mov ebp, 0x00090000
+    35 00000083 89EC                <1>   mov esp, ebp
+    36                              <1> 
+    37 00000085 E850000000          <1>   call BEGIN_PM
+    22                                  %include "routines/gdt.asm"
+     1                              <1> gdt_start:
+     2                              <1> 
+     3                              <1> gdt_null:
+     4 0000008A 00000000            <1>  dd 0x00000000
+     5 0000008E 00000000            <1>  dd 0x00000000
+     6                              <1> 
+     7                              <1> gdt_code:	;the code segment descriptor
+     8                              <1>  ; base =0x0 , limit =0 xfffff ,
+     9                              <1>  ; 1st flags : ( present )1 ( privilege )00 ( descriptor type )1 -> 1001 b
+    10                              <1>  ; type flags : ( code )1 ( conforming )0 ( readable )1 ( accessed )0 -> 1010 b
+    11                              <1>  ; 2nd flags : ( granularity )1 (32 - bit default )1 (64 - bit seg )0 ( AVL )0 -> 1100 b
+    12 00000092 FFFF                <1>  dw 0xffff	;limit=0xffff (bit 0 to 15)
+    13 00000094 0000                <1>  dw 0x0000	;base=0x0000 (bit 16 to 31)
+    14 00000096 00                  <1>  db 0x00	;base=0x00 (bit 0 to 7) (start the second 32-bit)
+    15 00000097 9A                  <1>  db 0b10011010	;present=1 privilege=00 descriptor-type=1 code=1 conforming=0 readable=1 accessed=0
+    16 00000098 CF                  <1>  db 0b11001111	;granularity=1 32-bit-default=1 64-bit=0 available=0 limit=0xf=0b1111 (bit 16 to 19)
+    17 00000099 00                  <1>  db 0x00	;base=0x00 (bit 24 to 31)
+    18                              <1> 
+    19                              <1> gdt_data:	;the data segment descriptor
+    20                              <1>  ; Same as code segment except for the type flags :
+    21                              <1>  ; type flags : ( code )0 ( expand down )0 ( writable )1 ( accessed )0 -> 0010 b
+    22 0000009A FFFF                <1>  dw 0xffff      ;limit=0xffff (bit 0 to 15)
+    23 0000009C 0000                <1>  dw 0x0000      ;base=0x0000 (bit 16 to 31)
+    24 0000009E 00                  <1>  db 0x00        ;base=0x00 (bit 0 to 7) (start the second 32-bit)
+    25 0000009F 92                  <1>  db 0b10010010  ;present=1 privilege=00 descriptor-type=1 code=0 expand-down=0 writable=1 accessed=0
+    26 000000A0 CF                  <1>  db 0b11001111  ;granularity=1 32-bit-default=1 64-bit=0 available=0 limit=0xf=0b1111 (bit 16 to 19)
+    27 000000A1 00                  <1>  db 0x00        ;base=0x00 (bit 24 to 31)
+    28                              <1> 
+    29                              <1> gdt_end:
+    30                              <1>  ; The reason for putting a label at the end of the
+    31                              <1>  ; GDT is so we can have the assembler calculate
+    32                              <1>  ; the size of the GDT for the GDT decriptor ( below )
+    33                              <1> 
+    34                              <1> ;GDT descriptor
+    35                              <1> gdt_descriptor:
+    36 000000A2 1700                <1>  dw gdt_end - gdt_start -1 	; Size of our GDT , always less one
+    37                              <1> 				; of the true size
+    38                              <1> 				; should be 3*8-byte=24-byte: 0d24=0x0018 ?
+    39                              <1> 				; should be 0x0018-1=0x0017
+    40 000000A4 [8A000000]          <1>  dd gdt_start
+    41                              <1> 
+    42                              <1> ; Define some handy constants for the GDT segment descriptor offsets , which
+    43                              <1> ; are what segment registers must contain when in protected mode. For example ,
+    44                              <1> ; when we set DS = 0 x10 in PM , the CPU knows that we mean it to use the
+    45                              <1> ; segment described at offset 0 x10 ( i.e. 16 bytes ) in our GDT , which in our
+    46                              <1> ; case is the DATA segment (0 x0 -> NULL ; 0x08 -> CODE ; 0 x10 -> DATA )
+    47                              <1> CODE_SEG equ gdt_code - gdt_start ; shoule be 0x08 ?
+    48                              <1> DATA_SEG equ gdt_data - gdt_start ; should be 0x10 ?
+    23                                  %include "routines/print_string_pm.asm"
+     1                              <1> [bits 32]
+     2                              <1> ;Define some constants
+     3                              <1> VIDEO_MEMORY equ 0x000b8000
+     4                              <1> WHITE_ON_BLACK equ 0x0000000f
+     5                              <1> 
+     6                              <1> ; prints a null - terminated string pointed to by EBX
+     7                              <1> print_string_pm:
+     8 000000A8 60                  <1>  pusha
+     9                              <1>  
+    10 000000A9 BA00800B00          <1>  mov edx, VIDEO_MEMORY ; Set edx to the start of vid mem.
+    11 000000AE 81C2800C0000        <1>  add edx, 0d3200	;0xb8000 + 2 * (row * 80 + col)
+    12                              <1> 			;row=20, col=0 => VIDEO_MEMORY+0d3200
+    13                              <1> 			;Video Graphics Array (VGA) colour text mode with dimmensions 80x25 characters
+    14                              <1>  
+    15                              <1>  print_string_pm_loop:
+    16                              <1>   
+    17 000000B4 8A03                <1>   mov al, [ebx]
+    18 000000B6 B40F                <1>   mov ah, WHITE_ON_BLACK
+    19                              <1>   
+    20 000000B8 3C00                <1>   cmp al, 0x00
+    21 000000BA 7409                <1>   je print_string_pm_done	; if (al == 0) , at end of string , so
+    22                              <1> 				; jump to done
+    23                              <1>   
+    24 000000BC 668902              <1>   mov [edx], ax 	; Store char and attributes at current
+    25                              <1> 			; character cell.
+    26                              <1> 
+    27 000000BF 43                  <1>   inc ebx		; Increment EBX to the next char in string.
+    28 000000C0 83C202              <1>   add edx, 0x02		; Move to next character cell in vid mem.
+    29 000000C3 EBEF                <1>   jmp print_string_pm_loop
+    30                              <1> 
+    31                              <1> print_string_pm_done:
+    32 000000C5 61                  <1>  popa
+    33 000000C6 C3                  <1>  ret
+    24                                  
+    25                                  [bits 16]
+    26                                  
+    27                                  load_kernel:
+    28 000000C7 BB[0D01]                 mov bx, MSG_LOAD_KERNEL
+    29 000000CA E84AFF                   call print_string_abs
+    30                                  
+    31 000000CD BB0010                   mov bx, KERNEL_OFFSET	; Set-up parameters for our disk_load routine
+    32 000000D0 B60F                     mov dh, 15		; we load the first 15 sectors ( excluding the boot sector ) from the boot disk ( i.e. our kernel code ) to address KERNEL_OFFSET in memory
+    33 000000D2 8A16[EB00]               mov dl, [BOOT_DRIVE]
+    34 000000D6 E853FF                   call disk_load
+    35                                  
+    36 000000D9 C3                       ret
+    37                                  
+    38                                  [bits 32]
+    39                                  ; This is where we arrive after switching to and initialising protected mode.
+    40                                  BEGIN_PM:
+    41 000000DA BB[2C010000]             mov ebx, MSG_PROT_MODE
+    42 000000DF E8C4FFFFFF               call print_string_pm
+    43                                  
+    44 000000E4 E8(00100000)             call KERNEL_OFFSET
+    45                                  
+    46 000000E9 EBFE                     jmp $			; Hang
+    47                                  
+    48                                  ; Global variables
+    49 000000EB 00                      BOOT_DRIVE: db 0x00
+    50 000000EC 5374617274696E6720-     MSG_REAL_MODE: db "Starting in 16-bit real mode ...",0x00
+    50 000000F5 696E2031362D626974-
+    50 000000FE 207265616C206D6F64-
+    50 00000107 65202E2E2E00       
+    51 0000010D 4C6F6164696E67206B-     MSG_LOAD_KERNEL: db "Loading kernel into memory ...",0x00
+    51 00000116 65726E656C20696E74-
+    51 0000011F 6F206D656D6F727920-
+    51 00000128 2E2E2E00           
+    52 0000012C 4C616E646564206F6E-     MSG_PROT_MODE: db "Landed on 32-bit protected mode without any error!",0x00
+    52 00000135 2033322D6269742070-
+    52 0000013E 726F74656374656420-
+    52 00000147 6D6F64652077697468-
+    52 00000150 6F757420616E792065-
+    52 00000159 72726F722100       
+    53                                  
+    54                                  ; Bootsector padding
+    55 0000015F 00<rept>                times 510-($-$$) db 0x00
+    56 000001FE 55AA                    dw 0xaa55
