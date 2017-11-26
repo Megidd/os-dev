@@ -1,5 +1,8 @@
 all: os-image
 
+run: all bochsrc
+	bochs
+
 clean:
 	rm -f boot_sect.bin boot_sect.list
 	cd kernel/ && make clean

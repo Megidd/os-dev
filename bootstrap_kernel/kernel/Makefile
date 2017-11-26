@@ -1,4 +1,4 @@
-all: kernel_entry.o kernel.o kernel.bin kernel.dis
+all: kernel.dis
 
 clean:
 	rm -f kernel_entry.o
