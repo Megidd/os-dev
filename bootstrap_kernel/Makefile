@@ -14,4 +14,4 @@ kernel/kernel.bin:
 	cd kernel/ && make
 
 os-image: boot/boot_sect.bin kernel/kernel.bin
-	cat $> > os-image
+	cat $> > $@
