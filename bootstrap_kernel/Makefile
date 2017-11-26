@@ -8,8 +8,8 @@ clean:
 	cd kernel/ && make clean
 	cd extra_empty_sectors/ && make clean
 	
-boot_sect.bin: boot_sect.asm routines/print_string_abs.asm routines/disk_load_callee.asm routines/switch_to_pm.asm routines/gdt.asm routines/print_string_pm.asm
-	nasm boot_sect.asm -f bin -o boot_sect.bin -l boot_sect.list
+boot_sect.bin: boot_sect.asm
+	nasm boot_sect.asm -f bin -I 'routines/' -o boot_sect.bin -l boot_sect.list
 
 os-image: boot_sect.bin
 	cd kernel/ && make
