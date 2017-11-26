@@ -1,3 +1,7 @@
+void someFunction(){
+	return;
+}
+
 void main(){
 	char*video_memory=(char*) (0xb8000+3360);
 	/**
@@ -41,5 +45,9 @@ void main(){
 	*(video_memory+30)='n';
 	*(video_memory+32)='g';
 	*/
+
+	// Call some function
+	someFunction();
+
 	return;
 }
