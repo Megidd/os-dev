@@ -11,7 +11,7 @@ kernel.o: kernel.c
 	clang -ffreestanding -c kernel.c -o kernel.o
 	#gcc -ffreestanding -c kernel.c -o kernel.o
 
-kernel.bin: kernel.o
+kernel.bin: kernel.o kernel_entry.o
 	ld -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o --oformat binary
 
 kernel.dis: kernel.bin
