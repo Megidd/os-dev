@@ -12,6 +12,31 @@ unsigned char port_byte_in(unsigned short port){
 	return result;
 }
 
+unsigned short port_word_in(unsigned short port){
+	unsigned short result;
+	asm("in %%dx, %%ax"
+			: "=a" (result)
+			: "d" (port)
+			);
+	return result;
+}
+
+void port_byte_out(unsigned short port, unsigned char data){
+	asm("out %%al, %%dx"
+			:
+			: "a" (data), "d" (port)
+			);
+	return;
+}
+
+void port_word_out(unsigned short port, unsigned short data){
+	asm("out %%ax, %%dx"
+			:
+			: "a" (data), "d" (port)
+			);
+	return;
+}
+
 void main(){
 	char*video_memory=(char*) (0xb8000+3360);
 	/**
