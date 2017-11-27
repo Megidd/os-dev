@@ -1,5 +1,15 @@
-void someFunction(){
-	return;
+unsigned char port_byte_in(unsigned short port){
+	unsigned char result;
+	/**
+	 * Intel syntax throws an error:
+	 * error: unknown use of instruction mnemonic without a size suffix
+	 */
+	//asm(".intel_syntax noprefix");
+	asm("in %%dx, %%al"
+			: "=a" (result)
+			: "d" (port)
+			);
+	return result;
 }
 
 void main(){
@@ -45,9 +55,6 @@ void main(){
 	*(video_memory+30)='n';
 	*(video_memory+32)='g';
 	*/
-
-	// Call some function
-	someFunction();
 
 	return;
 }
