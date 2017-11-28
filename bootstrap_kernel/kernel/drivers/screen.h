@@ -11,5 +11,7 @@
 #define REG_SCREEN_DATA 0x03d5
 
 void print_char(char , int , int , char );
+int get_screen_offset(int , int );
+int get_cursor();
 
 #endif //SCREEN_H
