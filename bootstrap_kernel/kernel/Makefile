@@ -1,8 +1,3 @@
-C_SOURCES=$(wildcard *.c drivers/*.c)
-HEADERS=$(wildcard *.h drivers/*.h)
-
-OBJ=${C_SOURCES:.c=.o}
-
 all: kernel.dis
 
 clean:
@@ -11,13 +6,13 @@ clean:
 kernel_entry.o: kernel_entry.asm
 	nasm $> -f elf -o $@
 
-kernel.o: ${OBJ}
+kernel.o: kernel.c
 	clang -ffreestanding -c $> -o $@
 
-%.o: %.c ${HEADERS}
+drivers/screen.o: drivers/screen.c
 	clang -ffreestanding -c $> -o $@
 
-kernel.bin: kernel_entry.o kernel.o
+kernel.bin: kernel_entry.o kernel.o drivers/screen.o
 	ld -o $@ -Ttext 0x1000 $> --oformat binary
 
 kernel.dis: kernel.bin
