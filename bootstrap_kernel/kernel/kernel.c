@@ -1,4 +1,5 @@
 #include "drivers/screen.h"
+#include "low_level.h"
 
 void main(){
 	char*video_memory=(char*) (0xb8000+3360);
@@ -44,7 +45,7 @@ void main(){
 	*(video_memory+32)='g';
 	*/
 
-	print_char('X',22,0,0x0f);
+	print_char('X',0,22,0x0f);
 
 	return;
 }
