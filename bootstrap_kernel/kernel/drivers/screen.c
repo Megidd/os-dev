@@ -96,14 +96,14 @@ int get_cursor(){
 	 * The device uses its control register
 	 * as an index to select its internal registers,
 	 * of which we are interested in:
-	 * reg 14: which is the high byte of the cursor’s offset
-	 * reg 15: which is the low byte of the cursor’s offset
+	 * reg 14 or 0x0e: which is the high byte of the cursor’s offset
+	 * reg 15 or 0x0f: which is the low byte of the cursor’s offset
 	 * Once the internal register has been selected,
 	 * we may read or write a byte on the data register.
 	 */
-	port_byte_out(REG_SCREEN_CTRL, 14);
+	port_byte_out(REG_SCREEN_CTRL, 0x0e);
 	int offset=port_byte_in(REG_SCREEN_DATA) << 8;
-	port_byte_out(REG_SCREEN_CTRL, 15);
+	port_byte_out(REG_SCREEN_CTRL, 0x0f);
 	offset+=port_byte_in(REG_SCREEN_DATA);
 
 	/**
@@ -124,9 +124,9 @@ void set_cursor(int offset){
 	 * This is similar to get_cursor,
 	 * only now we write bytes to those internal device registers.
 	 */
-	port_byte_out(REG_SCREEN_CTRL, 14);
+	port_byte_out(REG_SCREEN_CTRL, 0x0e);
 	port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
-	port_byte_out(REG_SCREEN_CTRL, 15);
+	port_byte_out(REG_SCREEN_CTRL, 0x0f);
 	port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset));
 
 	return;
