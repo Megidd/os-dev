@@ -1,5 +1,6 @@
 #include "drivers/screen.h"
 #include "low_level.h"
+#include "util.h"
 
 void main(){
 	char*video_memory=(char*) (0xb8000+3360);
@@ -54,10 +55,10 @@ void main(){
 	print("\n");
 	print(message);
 	print("\n");
-	char* msgOverLastLine="This message is over the last line limit!";
+	char* msgOverLastLine="This message is over the last line limit! If it is shown, the screen-scrolling function is working!";
 	print(msgOverLastLine);
 	
-	clear_screen();
+	//clear_screen();
 
 	return;
 }

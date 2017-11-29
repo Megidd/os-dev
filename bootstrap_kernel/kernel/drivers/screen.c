@@ -1,4 +1,6 @@
 #include "screen.h"
+#include "../low_level.h"
+#include "../util.h"
 
 void print(char* message){
 	print_at(message,-1,-1);
@@ -148,6 +150,44 @@ void clear_screen(){
 	return;
 }
 
-int handle_scrolling(int offset){
-	return offset;
+/**
+ * Advance the text cursor, scrolling the video buffer if necessary.
+ */
+int handle_scrolling(int cursor_offset){
+	/**
+	 * If the cursor is within the screen, return it unmodified.
+	 */
+	if(cursor_offset<MAX_ROWS*MAX_COLS*2){
+		return cursor_offset;
+	}
+
+	/**
+	 * Shuffle the rows back one.
+	 */
+	for(int i=0;i<MAX_ROWS;i++){
+		memory_copy(
+				(char*)get_screen_offset(0,i)+VIDEO_ADDRESS,
+				(char*)get_screen_offset(0,i-1)+VIDEO_ADDRESS,
+				MAX_COLS*2
+				);
+	}
+
+	/**
+	 * Blank the last line by setting all bytes to 0
+	 */
+	char* last_line=(char*)get_screen_offset(0,MAX_ROWS-1)+VIDEO_ADDRESS;
+	for(int i=0;i<MAX_COLS*2;i++){
+		last_line[i]=0x00;
+	}
+
+	/**
+	 * Move the offset back one row,
+	 * such that it is now on the last row, rather than off the edge of the screen.
+	 */
+	cursor_offset-=2*MAX_COLS;
+
+	/**
+	 * Return the updated cursor position.
+	 */
+	return cursor_offset;
 }
