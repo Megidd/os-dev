@@ -89,9 +89,23 @@ int get_cursor(){
 }
 
 void set_cursor(int offset){
+	/**
+	 *  Convert from cell offset to char offset.
+	 */
+	offset/=2;
+
+	/**
+	 * This is similar to get_cursor,
+	 * only now we write bytes to those internal device registers.
+	 */
+	port_byte_out(REG_SCREEN_CTRL, 14);
+	port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset >> 8));
+	port_byte_out(REG_SCREEN_CTRL, 15);
+	port_byte_out(REG_SCREEN_DATA, (unsigned char)(offset));
+
 	return;
 }
 
 int handle_scrolling(int offset){
-	return 0x00;
+	return offset;
 }
