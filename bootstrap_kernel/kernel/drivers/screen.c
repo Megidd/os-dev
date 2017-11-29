@@ -1,5 +1,10 @@
 #include "screen.h"
 
+void print(char* message){
+	print_at(message,-1,-1);
+	return;
+}
+
 void print_at(char* message, int col, int row){
 	/**
 	 *  Update the cursor if col and row are not negative.
@@ -13,8 +18,10 @@ void print_at(char* message, int col, int row){
 	 */
 	int i=0;
 	while(message[i]!=0x00){
-		print_char(message[i++],-1,-1,WHITE_ON_BLACK);
+		print_char(message[i++],col,row,WHITE_ON_BLACK);
 	}
+
+	return;
 }
 
 void print_char(char character, int col, int row, char attribute_byte){

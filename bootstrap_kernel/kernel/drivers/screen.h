@@ -10,6 +10,7 @@
 #define REG_SCREEN_CTRL 0x03d4
 #define REG_SCREEN_DATA 0x03d5
 
+void print(char* );
 void print_at(char* , int , int );
 
 void print_char(char , int , int , char );
