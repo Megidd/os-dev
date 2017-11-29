@@ -45,7 +45,8 @@ void main(){
 	*(video_memory+32)='g';
 	*/
 
-	print_char('X',0,22,0x0f);
+	//print_char('X',0,22,0x0f);
+	print_char('X',-1,-1,0x0f);
 
 	return;
 }
