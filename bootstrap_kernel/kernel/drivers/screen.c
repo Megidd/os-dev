@@ -130,6 +130,24 @@ void set_cursor(int offset){
 	return;
 }
 
+void clear_screen(){
+	/**
+	 * Loop through video memory and write blank characters.
+	 */
+	for(int row=0;row<MAX_ROWS;row++){
+		for(int col=0;col<MAX_COLS;col++){
+			print_char(' ',col,row,WHITE_ON_BLACK);
+		}
+	}
+
+	/**
+	 * Move the cursor back to the top left.
+	 */
+	set_cursor(get_screen_offset(0,0));
+
+	return;
+}
+
 int handle_scrolling(int offset){
 	return offset;
 }

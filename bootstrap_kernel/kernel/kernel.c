@@ -53,6 +53,11 @@ void main(){
 	print_at(message,0,23);
 	print("\n");
 	print(message);
+	print("\n");
+	char* msgOverLastLine="This message is over the last line limit!";
+	print(msgOverLastLine);
+	
+	clear_screen();
 
 	return;
 }

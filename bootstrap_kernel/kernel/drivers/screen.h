@@ -17,6 +17,7 @@ void print_char(char , int , int , char );
 int get_screen_offset(int , int );
 int get_cursor();
 void set_cursor(int );
+void clear_screen();
 int handle_scrolling(int );
 
 #endif //SCREEN_H
