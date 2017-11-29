@@ -49,5 +49,8 @@ void main(){
 	print_char('Y',-1,-1,0x0f);
 	print_char('Z',-1,-1,0x0f);
 
+	char* message="Testing print_at function... if this message is printed, it works!";
+	print_at(message,0,23);
+
 	return;
 }
