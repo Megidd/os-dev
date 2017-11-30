@@ -14,4 +14,6 @@ kernel/kernel.bin:
 	cd kernel/ && make
 
 os-image: boot/boot_sect.bin kernel/kernel.bin
-	cat $> > $@
+	#cat $> > $@
+	cat $^ > $@
+	truncate -s 10240 $@

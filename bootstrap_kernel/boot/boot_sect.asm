@@ -4,6 +4,10 @@ KERNEL_OFFSET equ 0x1000
 mov [BOOT_DRIVE], dl	; BIOS stores our boot drive in DL , so it 's
 			; best to remember this for later
 
+xor ax, ax
+mov ds, ax		;zero-out DS
+mov es, ax		;zero-out ES
+
 mov bp, 0x9000		; Set-up the stack.
 mov sp, bp
 
